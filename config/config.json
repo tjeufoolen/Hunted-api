@@ -1,9 +1,0 @@
-{
-  "development": {
-    "username": "developer",
-    "password": "developer",
-    "database": "hunted_api_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  }
-}
