@@ -5,19 +5,5 @@
     "database": "hunted_api_db",
     "host": "127.0.0.1",
     "dialect": "mysql"
-  },
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "bd62b7506ae883",
-    "password": "3af743a2",
-    "database": "heroku_a72e3a7a4189b28",
-    "host": "eu-cdbr-west-03.cleardb.net",
-    "dialect": "mysql"
   }
 }
