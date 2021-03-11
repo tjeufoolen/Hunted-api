@@ -1,6 +1,7 @@
 FROM node:latest
 
-WORKDIR /usr/src/app
-COPY . .
-RUN npm install
+COPY . /api
+WORKDIR /api
+RUN npm install --also=dev
+
 CMD ["npm", "run", "dev"]

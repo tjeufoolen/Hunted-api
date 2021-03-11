@@ -11,6 +11,8 @@ services:
       - MYSQL_DATABASE=hunted_api_db
       - MYSQL_USER=developer
       - MYSQL_PASSWORD=developer
+    cap_add:
+      - SYS_NICE
   hunted-api:
     container_name: api
     build: ./
@@ -18,6 +20,8 @@ services:
       - "3000:3000"
     environment:
       - DB_HOST=mysqldb
+    volumes:
+      - ./:/api
     deploy:
       restart_policy:
         condition: on-failure
