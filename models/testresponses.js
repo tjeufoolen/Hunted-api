@@ -21,12 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     text: DataTypes.STRING,
-    price: DataTypes.DECIMAL(10,2)
+    price: DataTypes.DECIMAL(10, 2)
   }, {
     sequelize,
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: false,
+    timestamps: false,
     modelName: 'TestResponses',
     tableName: 'test_responses'
   });

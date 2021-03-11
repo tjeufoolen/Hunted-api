@@ -20,6 +20,7 @@ services:
       - "3000:3000"
     environment:
       - DB_HOST=mysqldb
+      - NODE_ENV=development
     volumes:
       - ./:/api
     deploy:
