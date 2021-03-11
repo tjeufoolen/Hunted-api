@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "nodemon -L ./bin/www",
+    "watch": "npm run dev"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -13,7 +15,14 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
-    "mysql": "^2.18.1",
-    "nodemon": "^2.0.7"
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7",
+    "sequelize-cli": "^6.2.0"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }
