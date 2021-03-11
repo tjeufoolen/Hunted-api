@@ -18,9 +18,4 @@ router.get('/:id', async function(req, res, next) {
 
 });
 
-router.get('/sync', async function(req, res, next) {
-  await TestResponses.sync({ force: true });
-  console.log("The table for the User model was just (re)created!");
-});
-
 module.exports = router;
