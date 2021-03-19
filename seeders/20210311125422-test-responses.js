@@ -9,7 +9,7 @@ module.exports = {
       text: "Kijk hoe mooi dit is",
       price: 10.50
     },{
-      text: "Ik heb goed nieuws, u gaat dood",
+      text: "Ik heb goed nieuws, u krijgt een response",
       price: 0.69
     }]);
   },
