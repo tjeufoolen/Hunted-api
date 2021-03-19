@@ -7,6 +7,7 @@ REST api build for the Hunted project using express.
 3. [Optional] Execute `npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all` to create the database table and seed data.
 4. Start programming! :tada:
 
+
 ## Authors
 - [Micha Nijenhof](https://github.com/nijenhof)
 - [Tjeu Foolen](https://github.com/tjeufoolen)
