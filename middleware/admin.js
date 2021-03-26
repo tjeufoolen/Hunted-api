@@ -24,7 +24,7 @@ passport.use(
           return done(null, false, { message: 'User not found' });
         }
 
-        if (!user.is_admin) {
+        if (!user.isAdmin) {
             return done(null, false);
         }
 

@@ -8,7 +8,6 @@ router.post(
     '/signup',
     [passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false }), passport.authenticate('signup', { session: false })],
     async (req, res, next) => {
-      console.log(req.body)
       res.json({
         message: 'Signup successful',
         user: req.user
@@ -39,9 +38,9 @@ router.post('/login',
                 const token = jwt.sign({ user: body }, process.env.JWT_KEY,);
   
                 return res.json({ 
-                  "toke": token,
+                  "token": token,
                   "email": user.email,
-                  "is_admin": user.is_admin 
+                  "isAdmin": user.isAdmin 
                 });
               }
             );

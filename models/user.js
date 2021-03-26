@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
      isValidPassword(password) {
+       console.log(this.password)
       return passwordHash.verify(password, this.password);
     } 
 
@@ -31,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    is_admin:{
+    isAdmin:{
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: 0
@@ -44,6 +45,11 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
     updatedAt: false,
+    scopes: {
+      users: {
+        attributes: { exclude: ['password','createdAt'] }
+      }
+    },
     hooks:{
       beforeCreate: (user, options) => {
         user.password = passwordHash.generate(user.password);

@@ -5,11 +5,11 @@ module.exports = {
     return queryInterface.bulkInsert('Users', [{
       email: "admin@info.nl",
       password: passwordHash.generate("123456"),
-      is_admin: true
+      isAdmin: true
     },{
       email: "test@info.nl",
       password: passwordHash.generate("123456"),
-      is_admin: false
+      isAdmin: false
     }],
     {    
       individualHooks: true

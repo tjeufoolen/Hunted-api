@@ -13,8 +13,6 @@ exports.getById = async function(req, res, next){
 }
 
 exports.get = async function(req, res, next){
-  const conn = await User.findAll();
+  const conn = await User.scope("users").findAll();
   res.json(conn);
-
-  //User.create({ email: "John@Doe.com", password: "idk" });
 }
