@@ -1,21 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { TestResponses } = require("../models/index")
+const { TestResponses } = require("../models/index");
 
-/* GET home page. */
-router.get('/', async function (req, res, next) {
-  const conn = await TestResponses.findAll();
-  res.json(conn);
-});
+var userController = require("../controllers/UserController");
 
-router.get('/:id', async function (req, res, next) {
-  const conn = await TestResponses.findOne({
-    where: {
-      id: req.params.id
-    }
-  });
-  res.json(conn);
+router.route("/").get(userController.get);
+router.route("/:id").get(userController.getById);
 
-});
 
 module.exports = router;
