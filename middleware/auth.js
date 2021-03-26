@@ -8,15 +8,13 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 passport.use(
   new JWTstrategy(
     {
-      secretOrKey: 'TOP_SECRET',
+      secretOrKey: process.env.JWT_KEY,
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
     },
     async (token, done) => {
       try {
-        console.log(token)
         return done(null, token.user);
       } catch (error) {
-        console.log(error)
         done(error);
       }
     }

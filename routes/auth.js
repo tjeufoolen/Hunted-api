@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 passport.initialize();
 router.post(
     '/signup',
-    passport.authenticate('signup', { session: false }),
+    [passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false }), passport.authenticate('signup', { session: false })],
     async (req, res, next) => {
       console.log(req.body)
       res.json({
@@ -36,9 +36,13 @@ router.post('/login',
                 if (error) return next(error);
   
                 const body = { _id: user._id, email: user.email };
-                const token = jwt.sign({ user: body }, 'TOP_SECRET');
+                const token = jwt.sign({ user: body }, process.env.JWT_KEY,);
   
-                return res.json({ token });
+                return res.json({ 
+                  "toke": token,
+                  "email": user.email,
+                  "is_admin": user.is_admin 
+                });
               }
             );
           } catch (error) {
