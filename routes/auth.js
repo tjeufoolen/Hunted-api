@@ -23,9 +23,9 @@ router.post('/login',
           try {
 
             if (err || !user) {
-              const error = new Error('An error occurred.');
-
-              return next(error);
+              res.status(401)
+              res.end(info.message)
+              return next();
             }
   
             req.login(
@@ -45,7 +45,6 @@ router.post('/login',
               }
             );
           } catch (error) {
-            console.log(4)
             return next(error);
           }
         }

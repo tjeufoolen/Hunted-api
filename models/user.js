@@ -9,7 +9,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
      isValidPassword(password) {
-       console.log(this.password)
       return passwordHash.verify(password, this.password);
     } 
 
