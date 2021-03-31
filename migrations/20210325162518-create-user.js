@@ -11,16 +11,19 @@ module.exports = {
       email: {
         type: Sequelize.STRING(100),
         allowNull: false,
-        unique: true
+        unique: true,
+        require: true
       },
       password: {
         type: Sequelize.STRING(100),
         allowNull: false,
+        require: true
       },
       isAdmin:{
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 0
+        defaultValue: 0,
+        require: true
       },
       createdAt: {
         allowNull: false,

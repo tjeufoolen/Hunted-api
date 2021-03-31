@@ -4,29 +4,28 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/index');
 
-// passport.authenticate('signup', { session: false })
 passport.initialize();
 router.post(
     '/signup',
     [passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })],
     async (req, res, next) => {
+
+      if(!req.body.email.trim() || !req.body.password.trim()){
+        res.status(400)
+        res.json('Incomplete data');
+        return;
+      }
+
+
+
         await User.create({ email: req.body.email, password: req.body.password, isAdmin: req.body.isAdmin })
         .then(function(result){
-          res.json({
-            message: 'Signup successful',
-            user: {
-              email: result.email,
-              isAdmin: result.isAdmin
-            }
-          });
+          res.json('Signup successful');
         }).catch(function(error){
 
           if(error.original.errno == 1062){
             res.status(409)
-            res.json({
-              status: 409,
-              error: 'Duplicate entry'
-            });
+            res.json('Email already in use');
           }
 
         });
