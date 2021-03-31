@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'User',
     updatedAt: false,
     scopes: {
-      users: {
+      users_api_return: {
         attributes: { exclude: ['password','createdAt'] }
       }
     },
