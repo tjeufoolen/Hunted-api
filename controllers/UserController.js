@@ -7,9 +7,8 @@ exports.getById = async function(req, res, next){
         where: {
           id: req.params.id
         },
-        include: ["games"]
       });
-      res.json(conn.games);
+      res.json(await conn.getGames());
 
 }
 
