@@ -1,18 +1,6 @@
 const { Controller } = require('./Controller');
-const ResponseBuilder = require('../utils/ResponseBuilder');
 
 class InviteTokenController extends Controller {
-    constructor() {
-        super();
-
-        this.create = this.create.bind(this);
-    }
-
-    async create(req, res, next) {
-        const token = this.generate(20, 212);
-        return ResponseBuilder.build(res, 200, { token, characters: token.length });
-    }
-
     generate(gameId, playerId) {
         const hash = require('crypto')
             .createHash("sha1")
