@@ -3,6 +3,7 @@ var router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/index');
+const slugger = require('../utils/slugger')
 
 passport.initialize();
 router.post(
@@ -12,20 +13,17 @@ router.post(
 
       if(!req.body.email.trim() || !req.body.password.trim()){
         res.status(400)
-        res.json('Incomplete data');
+        res.end('incomplete_data');
         return;
       }
 
-
-
         await User.create({ email: req.body.email, password: req.body.password, isAdmin: req.body.isAdmin })
         .then(function(result){
-          res.json('Signup successful');
+          res.end('signup_successful');
         }).catch(function(error){
-
           if(error.original.errno == 1062){
             res.status(409)
-            res.json('Email already in use');
+            res.end('email_in_use');
           }
 
         });
@@ -41,8 +39,8 @@ router.post('/login',
 
             if (err || !user) {
               res.status(401)
-              res.end(info.message)
-              return next();
+              res.end(slugger.createSlug(info.message))
+              return
             }
   
             req.login(
