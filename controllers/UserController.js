@@ -13,7 +13,7 @@ class UserController extends Controller {
 	}
 
 	async signup(req, res, next) {
-		if (!req.body.email.trim() || !req.body.password.trim()) {
+		if (!req.body.email?.trim() || !req.body.password?.trim()) {
 			return this.error(next, 400, 'Incomplete Data');
 		}
 
