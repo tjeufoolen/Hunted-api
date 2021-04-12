@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
      isValidPassword(password) {
-      return passwordHash.verify(password, this.password);
+      	return password === this.password
     } 
 
     static associate(models) {
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      unique: true
+      unique: true,
     },
     password: {
       type: DataTypes.STRING(100),

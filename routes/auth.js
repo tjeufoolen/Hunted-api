@@ -22,7 +22,7 @@ router.post('/login',
 
             if (err || !user) {
               res.status(401)
-              res.end(slugger.createSlug(info.message))
+              res.send({error: slugger.createSlug(info.message)})
               return
             }
   
