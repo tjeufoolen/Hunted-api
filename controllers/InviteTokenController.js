@@ -1,9 +1,9 @@
 const { Controller } = require('./Controller');
+const crypto = require('crypto');
 
 class InviteTokenController extends Controller {
     generate(gameId, playerId) {
-        const hash = require('crypto')
-            .createHash("sha1")
+        const hash = crypto.createHash("sha1")
             .update(`${gameId}-${playerId}-${process.env.INVITE_CODE_KEY}`)
             .digest("hex");
 
