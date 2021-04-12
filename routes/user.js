@@ -1,9 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const Router = require('express').Router({ mergeParams: true });
+const UserController = require("../controllers/UserController");
 
-var userController = require("../controllers/UserController");
+Router
+    .route("/")
+    .get(UserController.get)
 
-router.route("/").get(userController.get)
-router.route("/:id").get(userController.getById);
+Router
+    .route("/:id")
+    .get(UserController.getById);
 
-module.exports = router;
+module.exports = Router;

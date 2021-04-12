@@ -1,10 +1,8 @@
-var slugify = require('slugify')
-
+const slugify = require('slugify')
 
 exports.createSlug = (msg) => {
-    return slugify(msg, {
-        lower: true, 
-        replacement: '_'
-      })
-}
-
+	return slugify(msg, {
+		lower: true,
+		replacement: '_'
+	});
+};
