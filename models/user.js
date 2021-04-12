@@ -1,5 +1,5 @@
 'use strict';
-const passwordHash  = require('password-hash');
+const passwordHash = require('crypto');
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     hooks:{
       beforeCreate: (user, options) => {
-        user.password = passwordHash.generate(user.password);
+        user.password = passwordHash.createHash("sha256").update(user.password).digest("hex");
       }
     }
   });

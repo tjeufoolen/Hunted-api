@@ -4,30 +4,13 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/index');
 const slugger = require('../utils/slugger')
+const userController = require("../controllers/UserController")
 
 passport.initialize();
 router.post(
     '/signup',
     [passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })],
-    async (req, res, next) => {
-
-      if(!req.body.email.trim() || !req.body.password.trim()){
-        res.status(400)
-        res.end('incomplete_data');
-        return;
-      }
-
-        await User.create({ email: req.body.email, password: req.body.password, isAdmin: req.body.isAdmin })
-        .then(function(result){
-          res.end('signup_successful');
-        }).catch(function(error){
-          if(error.original.errno == 1062){
-            res.status(409)
-            res.end('email_in_use');
-          }
-
-        });
-    }
+    userController.signup
   );
 
 router.post('/login',

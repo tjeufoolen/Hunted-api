@@ -1,14 +1,14 @@
 'use strict';
-const passwordHash  = require('password-hash');
+const passwordHash  = require('crypto');
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Users', [{
       email: "admin@info.nl",
-      password: passwordHash.generate("123456"),
+      password: passwordHash.createHash("sha256").update("123456").digest("hex"),
       isAdmin: true
     },{
       email: "test@info.nl",
-      password: passwordHash.generate("123456"),
+      password: passwordHash.createHash("sha256").update("123456").digest("hex"),
       isAdmin: false
     }],
     {    
