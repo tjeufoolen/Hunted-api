@@ -1,4 +1,4 @@
-const slugger = require('../utils/slugger');
+const Slugger = require('../utils/Slugger');
 
 class Controller {
     /**
@@ -16,7 +16,7 @@ class Controller {
 
         // Generate slug if non provided
         if (slug == undefined || slug.trim().length == 0) {
-            slug = slugger.createSlug(message);
+            slug = Slugger.create(message);
         }
 
         // Set slug and statusCode on error object

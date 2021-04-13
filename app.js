@@ -11,8 +11,8 @@ const ResponseBuilder = require('./utils/ResponseBuilder');
 require("./models/index");
 
 // Load middlewares
-require('./middleware/auth');
-require('./middleware/admin');
+require('./middleware/AuthMiddleware');
+require('./middleware/AdminMiddleware');
 
 // Initialize express
 const app = express();
