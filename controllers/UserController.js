@@ -9,7 +9,6 @@ exports.getById = async function(req, res, next){
         },
       });
       res.json(await conn.getGames());
-
 }
 
 exports.get = async function(req, res, next){
