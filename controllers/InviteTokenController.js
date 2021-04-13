@@ -15,6 +15,14 @@ class InviteTokenController extends Controller {
 
         return token;
     }
+
+    generateMultiple(amount, gameId, playerId) {
+        const tokens = [];
+        for (let i = 0; i < amount; i++) {
+            tokens.push(this.generate(gameId, playerId));
+        }
+        return tokens;
+    }
 }
 
 module.exports = new InviteTokenController();
