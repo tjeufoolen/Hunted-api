@@ -15,7 +15,9 @@ class Controller {
         const err = new Error(message);
 
         // Generate slug if non provided
-        if (slug?.trim().length == 0) slug = slugger.createSlug(message);
+        if (slug == undefined || slug.trim().length == 0) {
+            slug = slugger.createSlug(message);
+        }
 
         // Set slug and statusCode on error object
         err.slug = slug;
