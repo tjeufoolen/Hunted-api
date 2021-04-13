@@ -16,7 +16,7 @@ class UserController extends Controller {
 	async signup(req, res, next) {
 		// validate data
 		const error = this.validateSignup(req.body);
-		if (error) return this.error(next, 400, error.details[0].message);
+		if (error) return this.error(next, 400, 'Incomplete data');
 
 		// Create user
 		await User.create({
