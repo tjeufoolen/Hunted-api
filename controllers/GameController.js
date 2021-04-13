@@ -28,7 +28,9 @@ class GameController extends Controller {
         // temp
         ResponseBuilder.build(res, 200, {
             id: 6969696969,
-            gameId: 6969696969,
+            game: {
+                id: 3420234
+            },
             code: '67477-15e87-46818-a097e-aba3c-2aab4-02c53-1f2aa',
             playerRole: 0,
             outOfTheGame: false,
