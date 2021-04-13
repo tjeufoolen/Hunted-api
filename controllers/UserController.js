@@ -1,5 +1,6 @@
 const { Controller } = require('./Controller');
 const { User } = require("../models/index");
+const Joi = require('joi');
 const ResponseBuilder = require('../utils/ResponseBuilder');
 
 class UserController extends Controller {
@@ -13,10 +14,11 @@ class UserController extends Controller {
 	}
 
 	async signup(req, res, next) {
-		if (!req.body.email?.trim() || !req.body.password?.trim()) {
-			return this.error(next, 400, 'Incomplete Data');
-		}
+		// validate data
+		const error = this.validateSignup(req.body);
+		if (error) return this.error(next, 400, error.details[0].message);
 
+		// Create user
 		await User.create({
 			email: req.body.email,
 			password: req.body.password,
@@ -42,6 +44,15 @@ class UserController extends Controller {
 	async get(req, res, next) {
 		const users = await User.scope("users_api_return").findAll();
 		ResponseBuilder.build(res, 200, users);
+	}
+
+	validateSignup(data) {
+		const schema = Joi.object({
+			email: Joi.string().required().email(),
+			password: Joi.string().required(),
+			isAdmin: Joi.bool().required()
+		});
+		return schema.validate(data).error;
 	}
 }
 
