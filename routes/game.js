@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const { TestResponses } = require("../models/game");
+const Router = require('express').Router({ mergeParams: true });
+const GameController = require("../controllers/GameController");
 
-var gameController = require("../controllers/GameController");
+Router
+    .route("/:gameId")
+    .get(GameController.getById);
 
-router.route("/").get(gameController.get);
-router.route("/:id").get(gameController.getById);
+Router
+    .route("/")
+    .get(GameController.get);
 
-module.exports = router;
+module.exports = Router;

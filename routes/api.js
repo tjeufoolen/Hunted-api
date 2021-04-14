@@ -4,6 +4,7 @@ const GameController = require('../controllers/GameController');
 
 Router
     .use('/auth', require('./auth'))
+    .use('/game', require('./game'))
     .use('/user', [passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })], require('./user'))
     .get('/join/:code?', GameController.join);
 

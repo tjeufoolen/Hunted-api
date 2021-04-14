@@ -43,17 +43,44 @@ class GameController extends Controller {
     }
 
     async get(req, res, next) {
-        const conn = await Game.findAll();
-        res.json(conn);
+        let game = [];
+        let filter = {};
+
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            filter = {
+                where: {
+                    userId: req.params.userId
+                },
+            };
+        }
+
+        // Fetch game
+        game = await Game.findAll(filter);
+
+        // Return game
+        ResponseBuilder.build(res, 200, game);
     }
 
-    async getById(res, req, next) {
-        const conn = await Game.findAll({
+    async getById(req, res, next) {
+        let game = [];
+        let filter = {
             where: {
-                userId: req.params.id
-            },
-        });
-        res.json(await conn.getGames());
+                id: req.params.gameId,
+            }
+        };
+
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            filter.where.userId = req.params.userId
+        }
+
+        // Fetch game
+        game = await Game.findOne(filter);
+        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
+
+        // Return game
+        ResponseBuilder.build(res, 200, game);
     }
 
     async create(req, res, next) {

@@ -35,7 +35,7 @@ class UserController extends Controller {
 	async getById(req, res, next) {
 		const user = await User.findOne({
 			where: {
-				id: req.params.id
+				id: req.params.userId
 			}
 		});
 		ResponseBuilder.build(res, 200, user.getGames());
