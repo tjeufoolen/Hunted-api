@@ -1,37 +1,59 @@
+const { Controller } = require('./Controller');
 const { User } = require("../models/index");
+const Joi = require('joi');
+const ResponseBuilder = require('../utils/ResponseBuilder');
 
-exports.signup = async (req, res, next) => {
+class UserController extends Controller {
 
-  if(!req.body.email.trim() || !req.body.password.trim()){
-    res.status(400)
-    res.end('incomplete_data');
-    return;
-  }
+	constructor() {
+		super();
 
-  await User.create({ email: req.body.email, password: req.body.password, isAdmin: req.body.isAdmin })
-  .then(function(result){
-    res.end('signup_successful');
-  }).catch(function(error){
-    if(error.original.errno == 1062){
-      res.status(409)
-      res.end('email_in_use');
-    }
-  });
+		this.signup = this.signup.bind(this);
+		this.getById = this.getById.bind(this);
+		this.get = this.get.bind(this);
+	}
+
+	async signup(req, res, next) {
+		// validate data
+		const error = this.validateSignup(req.body);
+		if (error) return this.error(next, 400, 'Incomplete data');
+
+		// Create user
+		await User.create({
+			email: req.body.email,
+			password: req.body.password,
+			isAdmin: req.body.isAdmin
+		})
+			.then(user => ResponseBuilder.build(res, 201, user))
+			.catch(error => {
+				if (error.original.errno == 1062) {
+					this.error(next, 409, 'The specified email is already in use', 'email_in_use');
+				}
+			});
+	}
+
+	async getById(req, res, next) {
+		const user = await User.findOne({
+			where: {
+				id: req.params.id
+			}
+		});
+		ResponseBuilder.build(res, 200, user);
+	}
+
+	async get(req, res, next) {
+		const users = await User.scope("users_api_return").findAll();
+		ResponseBuilder.build(res, 200, users);
+	}
+
+	validateSignup(data) {
+		const schema = Joi.object({
+			email: Joi.string().required().email(),
+			password: Joi.string().required(),
+			isAdmin: Joi.bool().required()
+		});
+		return schema.validate(data).error;
+	}
 }
 
-
-
-exports.getById = async function(req, res, next){
-    const conn = await User.findOne({
-        where: {
-          id: req.params.id
-        }
-      });
-      res.json(conn);
-
-}
-
-exports.get = async function(req, res, next){
-  const conn = await User.scope("users_api_return").findAll();
-  res.json(conn);
-}
+module.exports = new UserController();
