@@ -29,6 +29,7 @@ class AuthController extends Controller {
 
 							return ResponseBuilder.build(res, 200, {
 								"token": token,
+								"id": user.id,
 								"email": user.email,
 								"isAdmin": user.isAdmin
 							});
