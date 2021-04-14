@@ -5,6 +5,8 @@ const GameController = require("../controllers/GameController");
 Router
     .route("/:gameId")
     .get(GameController.getById)
+    .put([passport.authenticate('jwt', { session: false })], GameController.update)
+    .patch([passport.authenticate('jwt', { session: false })], GameController.update)
     .delete([passport.authenticate('jwt', { session: false })], GameController.delete);
 
 Router

@@ -11,9 +11,10 @@ class GameController extends Controller {
         super();
 
         this.join = this.join.bind(this);
+        this.create = this.create.bind(this);
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
-        this.create = this.create.bind(this);
+        this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
     }
 
@@ -44,6 +45,50 @@ class GameController extends Controller {
             outOfTheGame: false,
             location: null
         }); // END temp
+    }
+
+    async create(req, res, next) {
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            // Check if authenticated user has permission to create game under specified userId
+            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+                return this.error(next, 403, 'Unauthorized');
+            }
+        }
+
+        // validate data
+        const error = this.validateCreate(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Create game
+        const game = await Game.create({
+            userId: req.user.id,
+            startAt: req.body.startAt,
+            minutes: req.body.minutes,
+            layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
+        });
+
+        // Create players
+        let playerId = 1; // Keeps track of the current player Index
+
+        for (let i = 0; i < req.body.players.police; i++)
+            await this.createPlayer(game.id, playerId, 0);
+        for (let i = 0; i < req.body.players.prisoners; i++)
+            await this.createPlayer(game.id, playerId, 1);
+
+        // Fetch created game with players
+        const fetchedGame = await Game.findOne({
+            where: {
+                id: game.id
+            },
+            include: {
+                model: Player,
+                as: 'players'
+            }
+        });
+
+        // Return fetched game
+        ResponseBuilder.build(res, 200, fetchedGame);
     }
 
     async get(req, res, next) {
@@ -87,48 +132,28 @@ class GameController extends Controller {
         ResponseBuilder.build(res, 200, game);
     }
 
-    async create(req, res, next) {
+    async update(req, res, next) {
         // validate data
-        const error = this.validateCreate(req.body);
+        const error = this.validateUpdate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
 
-        // Handle top level route /user/:userId
-        if (req.params.userId) {
-            // Check if authenticated user has permission to create game under specified userId
-            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
-                return this.error(next, 403, 'Unauthorized');
-            }
-        }
-
         // Create game
-        const game = await Game.create({
-            userId: req.user.id,
-            startAt: req.body.startAt,
-            minutes: req.body.minutes,
-            layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
-        });
-
-        // Create players
-        let playerId = 1; // Keeps track of the current player Index
-
-        for (let i = 0; i < req.body.players.police; i++)
-            await this.createPlayer(game.id, playerId, 0);
-        for (let i = 0; i < req.body.players.prisoners; i++)
-            await this.createPlayer(game.id, playerId, 1);
-
-        // Fetch created game with players
-        const fetchedGame = await Game.findOne({
+        const game = await Game.findOne({
             where: {
-                id: game.id
-            },
-            include: {
-                model: Player,
-                as: 'players'
+                id: req.params.gameId
             }
         });
+        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found')
 
-        // Return fetched game
-        ResponseBuilder.build(res, 200, fetchedGame);
+        // Update game settings
+        game.startAt = req.body.startAt;
+        game.minutes = req.body.minutes;
+
+        // Save updated game
+        const updatedGame = await game.save();
+
+        // Return updated game
+        ResponseBuilder.build(res, 200, updatedGame);
     }
 
     async delete(req, res, next) {
@@ -162,6 +187,15 @@ class GameController extends Controller {
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
             players: playersSchema.required()
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validateUpdate(data) {
+        const schema = Joi.object({
+            startAt: Joi.date().required(),
+            minutes: Joi.number().min(1).required()
         });
 
         return schema.validate(data).error;
