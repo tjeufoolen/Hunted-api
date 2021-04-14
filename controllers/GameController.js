@@ -133,6 +133,14 @@ class GameController extends Controller {
     }
 
     async update(req, res, next) {
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            // Check if authenticated user has permission to create game under specified userId
+            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+                return this.error(next, 403, 'Unauthorized');
+            }
+        }
+
         // validate data
         const error = this.validateUpdate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
