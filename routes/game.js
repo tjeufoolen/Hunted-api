@@ -1,4 +1,5 @@
 const Router = require('express').Router({ mergeParams: true });
+const passport = require('passport');
 const GameController = require("../controllers/GameController");
 
 Router
@@ -7,6 +8,7 @@ Router
 
 Router
     .route("/")
-    .get(GameController.get);
+    .get(GameController.get)
+    .post([passport.authenticate('jwt', { session: false })], GameController.create);
 
 module.exports = Router;

@@ -9,7 +9,7 @@ class InviteTokenController extends Controller {
      * @param {*} playerId 
      * @returns generated token
      */
-    generate(gameId, playerId) {
+    async generate(gameId, playerId) {
         const unhashedToken = `${gameId}-${playerId}-${process.env.INVITE_CODE_KEY}`;
 
         // Hash token
