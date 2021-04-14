@@ -92,6 +92,14 @@ class GameController extends Controller {
         const error = this.validateCreate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
 
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            // Check if authenticated user has permission to create game under specified userId
+            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+                return this.error(next, 403, 'Unauthorized');
+            }
+        }
+
         // Create game
         const game = await Game.create({
             userId: req.user.id,

@@ -24,7 +24,7 @@ class AuthController extends Controller {
 						async (error) => {
 							if (error) return this.error(next, 500, error);
 
-							const body = { id: user.id, email: user.email };
+							const body = { id: user.id, email: user.email, isAdmin: user.isAdmin };
 							const token = jwt.sign({ user: body }, process.env.JWT_KEY,);
 
 							return ResponseBuilder.build(res, 200, {
