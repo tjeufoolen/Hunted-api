@@ -132,6 +132,15 @@ class GameController extends Controller {
     }
 
     async delete(req, res, next) {
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            // Check if authenticated user has permission to create game under specified userId
+            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+                return this.error(next, 403, 'Unauthorized');
+            }
+        }
+
+        // Delete game
         const destroyedGame = await Game.destroy({
             where: {
                 id: req.params.gameId
@@ -139,6 +148,7 @@ class GameController extends Controller {
         });
         if (!destroyedGame) return this.error(next, 400, "The specified game could not be removed.", "game_remove_fail")
 
+        // Return success message
         ResponseBuilder.build(res, 200, { message: "Success!" });
     }
 
