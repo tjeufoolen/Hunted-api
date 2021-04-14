@@ -5,7 +5,6 @@ const Joi = require('joi');
 const { Player, Game } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
-const player = require('../models/player');
 
 class GameController extends Controller {
     constructor() {
@@ -15,6 +14,7 @@ class GameController extends Controller {
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
         this.create = this.create.bind(this);
+        this.delete = this.delete.bind(this);
     }
 
     async join(req, res, next) {
@@ -129,6 +129,17 @@ class GameController extends Controller {
 
         // Return fetched game
         ResponseBuilder.build(res, 200, fetchedGame);
+    }
+
+    async delete(req, res, next) {
+        const destroyedGame = await Game.destroy({
+            where: {
+                id: req.params.gameId
+            }
+        });
+        if (!destroyedGame) return this.error(next, 400, "The specified game could not be removed.", "game_remove_fail")
+
+        ResponseBuilder.build(res, 200, { message: "Success!" });
     }
 
     validateCreate(data) {

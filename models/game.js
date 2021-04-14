@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'userId'
 			});
 			Game.hasMany(models.Player, {
-				as: 'players'
+				as: 'players',
+				onDelete: 'cascade'
 			});
 		}
 	};

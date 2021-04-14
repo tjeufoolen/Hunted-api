@@ -4,7 +4,8 @@ const GameController = require("../controllers/GameController");
 
 Router
     .route("/:gameId")
-    .get(GameController.getById);
+    .get(GameController.getById)
+    .delete([passport.authenticate('jwt', { session: false })], GameController.delete);
 
 Router
     .route("/")
