@@ -27,7 +27,10 @@ class GameController extends Controller {
             where: {
                 code: req.params.code
             },
-            include: Game
+            include: {
+                model: Game,
+                as: 'game'
+            }
         });
         if (!player) return this.error(next, 400, "Invalid invite token");
 
