@@ -14,10 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'location',
 				foreignKey: 'locationId'
 			});
-			Player.belongsTo(models.Game, {
-				as: 'game',
-				foreignKey: 'id'
-			});
+			Player.belongsTo(models.Game);
 		}
 	};
 	Player.init({
