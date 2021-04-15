@@ -19,13 +19,14 @@ class GameController extends Controller {
     }
 
     async join(req, res, next) {
-        // Check if invite token is present
-        if (!req.params.code) return this.error(next, 400, "Missing invite token");
+        // validate data
+        const error = this.validateJoin(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
 
         // Check if token is from a player
         const player = await Player.findOne({
             where: {
-                code: req.params.code
+                code: req.body.code
             },
             include: {
                 model: Game,
@@ -180,6 +181,14 @@ class GameController extends Controller {
 
         // Return success message
         ResponseBuilder.build(res, 200, { message: "Success!" });
+    }
+
+    validateJoin(data) {
+        const schema = Joi.object({
+            code: Joi.string().required(),
+        });
+
+        return schema.validate(data).error;
     }
 
     validateCreate(data) {

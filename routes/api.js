@@ -5,6 +5,6 @@ Router
     .use('/auth', require('./auth'))
     .use('/game', require('./game'))
     .use('/user', require('./user'))
-    .get('/join/:code?', GameController.join);
+    .post('/join', GameController.join);
 
 module.exports = Router;
