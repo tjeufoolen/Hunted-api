@@ -26,7 +26,8 @@ class GameController extends Controller {
         const player = await Player.findOne({
             where: {
                 code: req.params.code
-            }
+            },
+            include: Game
         });
         if (!player) return this.error(next, 400, "Invalid invite token");
 
