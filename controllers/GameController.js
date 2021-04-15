@@ -81,6 +81,7 @@ class GameController extends Controller {
     async get(req, res, next) {
         let game = [];
         let filter = {
+            where: {},
             include: {
                 model: Player,
                 as: 'players'
@@ -89,11 +90,7 @@ class GameController extends Controller {
 
         // Handle top level route /user/:userId
         if (req.params.userId) {
-            filter = {
-                where: {
-                    userId: req.params.userId
-                }
-            };
+            filter.where.userId = req.params.userId;
         }
 
         // Fetch game
