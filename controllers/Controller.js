@@ -1,4 +1,4 @@
-const Slugger = require('../utils/Slugger');
+const Slugger = require('../utils/slugger');
 
 class Controller {
     /**
