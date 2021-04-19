@@ -12,13 +12,13 @@ const PlayerRoles = Object.freeze({
         const data = [];
 
         for (const [key, obj] of Object.entries(this)) {
-            if (key != "values" && key != "getRole" && key != "equals") data.push(obj.value);
+            if (key != "values" && key != "getByValue") data.push(obj.value);
         }
 
         return data;
     },
 
-    getRole: function (value) {
+    getByValue: function (value) {
         for (const [key, obj] of Object.entries(this)) {
             if (obj.value == value) return obj;
         }
