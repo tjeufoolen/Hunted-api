@@ -16,6 +16,7 @@ class PlayerController extends Controller {
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
         this.patch = this.patch.bind(this);
+        this.delete = this.delete.bind(this);
     }
 
     async post(req, res, next) {
@@ -142,6 +143,36 @@ class PlayerController extends Controller {
 
         // Return updated player
         return ResponseBuilder.build(res, 200, updatedPlayer);
+    }
+
+    async delete(req, res, next) {
+        if (!req.params.gameId || !req.params.playerId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Fetch player
+        const player = await Player.findOne({
+            where: {
+                [Op.and]: [
+                    { id: req.params.playerId },
+                    { gameId: req.params.gameId }
+                ]
+            },
+            include: {
+                model: Game,
+                as: 'game'
+            }
+        });
+        if (!player) return this.error(next, 404, 'The specified player could not be found', 'player_not_found');
+
+        // Check if caller has permission to access resource
+        if (req.user.id != player.game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+
+        // Delete player
+        await player.destroy();
+
+        // Return deleted player
+        return ResponseBuilder.build(res, 200, player);
     }
 
     validatePost(data) {
