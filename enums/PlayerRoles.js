@@ -1,6 +1,7 @@
 const enumValue = (key, value) => Object.freeze({
     toString: () => `PlayerRoles.${key}`,
-    value
+    value,
+    equals: (other) => other.value == value
 });
 
 const PlayerRoles = Object.freeze({
@@ -11,11 +12,19 @@ const PlayerRoles = Object.freeze({
         const data = [];
 
         for (const [key, obj] of Object.entries(this)) {
-            if (key != "values") data.push(obj.value);
+            if (key != "values" && key != "getRole" && key != "equals") data.push(obj.value);
         }
 
         return data;
-    }
+    },
+
+    getRole: function (value) {
+        for (const [key, obj] of Object.entries(this)) {
+            if (obj.value == value) return obj;
+        }
+
+        return null;
+    },
 });
 
 module.exports.PlayerRoles = PlayerRoles;

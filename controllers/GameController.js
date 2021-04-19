@@ -63,10 +63,15 @@ class GameController extends Controller {
         // Create players
         let playerId = 1; // Keeps track of the current player Index
 
-        for (let i = 0; i < req.body.players.police; i++)
+        for (let i = 0; i < req.body.players.police; i++) {
             await this.createPlayer(game.id, playerId, 0);
-        for (let i = 0; i < req.body.players.prisoners; i++)
+            playerId++;
+        }
+
+        for (let i = 0; i < req.body.players.prisoners; i++) {
             await this.createPlayer(game.id, playerId, 1);
+            playerId++;
+        }
 
         // Fetch created game with players
         const fetchedGame = await Game.findOne({
@@ -216,9 +221,11 @@ class GameController extends Controller {
     }
 
     async createPlayer(gameId, playerId, role) {
+        playerId = parseInt(playerId);
         const code = await InviteTokenController.generate(gameId, playerId);
 
         return await Player.create({
+            id: playerId,
             gameId,
             code,
             playerRole: role, // TODO: Implement actual playerRole when roles are available.

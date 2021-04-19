@@ -44,8 +44,12 @@ class PlayerController extends Controller {
         if (req.user.id != game.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
 
+        // Get current highest player id
+        const highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
+
         // Create player
         const player = await Player.create({
+            id: highestPlayerId + 1,
             gameId: game.id,
             code: null,
             playerRole: req.body.playerRole,
