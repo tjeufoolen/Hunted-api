@@ -254,6 +254,7 @@ class PlayerController extends Controller {
     }
 
     validatePost(data) {
+        console.log("validate");
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
             outOfTheGame: Joi.boolean().required(),
