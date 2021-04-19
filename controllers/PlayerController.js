@@ -15,6 +15,7 @@ class PlayerController extends Controller {
         this.post = this.post.bind(this);
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
+        this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
     }
@@ -106,6 +107,84 @@ class PlayerController extends Controller {
         return ResponseBuilder.build(res, 200, player);
     }
 
+    async put(req, res, next) {
+        if (!req.params.gameId || !req.params.playerId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Validate data
+        const error = this.validatePut(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Fetch game
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            }
+        });
+
+        // Check if caller has permission to access resource
+        if (req.user.id != game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+
+        // Fetch player
+        let player = await Player.findOne({
+            where: {
+                [Op.and]: [
+                    { id: req.params.playerId },
+                    { gameId: req.params.gameId }
+                ]
+            },
+            include: {
+                model: Game,
+                as: 'game'
+            }
+        });
+
+        // Update specified fields on player
+        if (player) {
+            player.playerRole = req.body.playerRole
+            player.outOfTheGame = req.body.outOfTheGame
+
+            // Save updated fields on player
+            player = await player.save();
+        }
+        // If resource not found, put will create a new one
+        else {
+            const playerId = parseInt(req.params.playerId);
+            const newPlayer = await Player.create({
+                id: playerId,
+                gameId: game.id,
+                code: null,
+                playerRole: req.body.playerRole,
+                outOfTheGame: req.body.outOfTheGame,
+                locationId: null
+            });
+
+            // Create and set invite code
+            newPlayer.code = await InviteTokenController.generate(game.id, newPlayer.id);
+
+            // Update player with newly created player
+            await newPlayer.save();
+
+            // Fetch created player with game reference
+            player = Player.findOne({
+                where: {
+                    [Op.and]: [
+                        { id: playerId },
+                        { gameId: req.params.gameId }
+                    ]
+                },
+                include: {
+                    model: Game,
+                    as: 'game'
+                }
+            });
+        }
+
+        // Return updated player
+        return ResponseBuilder.build(res, 200, player);
+    }
+
     async patch(req, res, next) {
         if (!req.params.gameId || !req.params.playerId)
             return this.error(next, 400, 'Incomplete data');
@@ -134,7 +213,6 @@ class PlayerController extends Controller {
             return this.error(next, 403, 'Unauthorized');
 
         // Update specified fields on player
-        if (req.body.code != undefined) player.code = req.body.code
         if (req.body.playerRole != undefined) player.playerRole = req.body.playerRole
         if (req.body.outOfTheGame != undefined) player.outOfTheGame = req.body.outOfTheGame
 
@@ -186,9 +264,17 @@ class PlayerController extends Controller {
 
     validatePatch(data) {
         const schema = Joi.object({
-            code: Joi.string(),
             playerRole: Joi.number().valid(...PlayerRoles.values()),
             outOfTheGame: Joi.boolean(),
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validatePut(data) {
+        const schema = Joi.object({
+            playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
+            outOfTheGame: Joi.boolean().required(),
         });
 
         return schema.validate(data).error;

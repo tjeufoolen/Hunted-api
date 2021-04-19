@@ -5,6 +5,7 @@ const PlayerController = require('../../controllers/PlayerController');
 Router
     .route("/:playerId")
     .get(PlayerController.getById)
+    .put([passport.authenticate('jwt', { session: false })], PlayerController.put)
     .patch([passport.authenticate('jwt', { session: false })], PlayerController.patch)
     .delete([passport.authenticate('jwt', { session: false })], PlayerController.delete);
 
