@@ -6,14 +6,61 @@ const { Op } = require("sequelize");
 const { Player, Game } = require("../models/index");
 const { PlayerRoles } = require("../enums/PlayerRoles");
 const ResponseBuilder = require('../utils/ResponseBuilder');
+const InviteTokenController = require('./InviteTokenController');
 
 class PlayerController extends Controller {
     constructor() {
         super();
 
+        this.post = this.post.bind(this);
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
         this.patch = this.patch.bind(this);
+    }
+
+    async post(req, res, next) {
+        if (!req.params.gameId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Validate data
+        const error = this.validatePost(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Fetch game
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            },
+            include: {
+                model: Player,
+                as: 'players'
+            }
+        });
+        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
+
+        // Check if caller has permission to access resource
+        if (req.user.id != game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+
+        // Create player
+        const player = await Player.create({
+            gameId: game.id,
+            code: null,
+            playerRole: req.body.playerRole,
+            outOfTheGame: req.body.outOfTheGame,
+            locationId: null
+        });
+
+        // Create invite code
+        const code = await InviteTokenController.generate(game.id, player.id);
+
+        // Update player
+        player.code = code;
+
+        // Save player with code
+        const savedPlayer = await player.save();
+
+        return ResponseBuilder.build(res, 200, savedPlayer);
     }
 
     async get(req, res, next) {
@@ -95,6 +142,15 @@ class PlayerController extends Controller {
 
         // Return updated player
         return ResponseBuilder.build(res, 200, updatedPlayer);
+    }
+
+    validatePost(data) {
+        const schema = Joi.object({
+            playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
+            outOfTheGame: Joi.boolean().required(),
+        });
+
+        return schema.validate(data).error;
     }
 
     validatePatch(data) {

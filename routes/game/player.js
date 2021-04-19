@@ -9,6 +9,7 @@ Router
 
 Router
     .route("/")
-    .get(PlayerController.get);
+    .get(PlayerController.get)
+    .post([passport.authenticate('jwt', { session: false })], PlayerController.post);
 
 module.exports = Router;
