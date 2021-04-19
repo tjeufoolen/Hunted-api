@@ -12,6 +12,7 @@ class PlayerController extends Controller {
         super();
 
         this.get = this.get.bind(this);
+        this.getById = this.getById.bind(this);
         this.patch = this.patch.bind(this);
     }
 
@@ -23,11 +24,38 @@ class PlayerController extends Controller {
         const players = await Player.findAll({
             where: {
                 gameId: req.params.gameId
+            },
+            include: {
+                model: Game,
+                as: 'game'
             }
         });
 
         // Return players
         return ResponseBuilder.build(res, 200, players);
+    }
+
+    async getById(req, res, next) {
+        if (!req.params.gameId || !req.params.playerId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Fetch player
+        const player = await Player.findOne({
+            where: {
+                [Op.and]: [
+                    { id: req.params.playerId },
+                    { gameId: req.params.gameId }
+                ]
+            },
+            include: {
+                model: Game,
+                as: 'game'
+            }
+        });
+        if (!player) return this.error(next, 404, 'The specified player could not be found', 'player_not_found');
+
+        // Return player
+        return ResponseBuilder.build(res, 200, player);
     }
 
     async patch(req, res, next) {
