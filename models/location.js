@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       Location.belongsTo(models.Player,{
         as: 'player',
         foreignKey: 'locationId'
-      })
+      });
+      Location.belongsTo(models.GameLocation,{
+        as: 'gameLocation',
+        foreignKey: 'locationId'
+      });
     }
   };
   Location.init({
@@ -24,10 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     latitude: {
-      type: DataTypes.GEOMETRY
+      type: DataTypes.DOUBLE
     },
     longtitude: {
-      type: DataTypes.GEOMETRY
+      type: DataTypes.DOUBLE
     },
     updatedAt: {
       allowNull: false,
