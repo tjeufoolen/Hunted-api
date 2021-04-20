@@ -33,7 +33,8 @@ module.exports = (sequelize, DataTypes) => {
 				model: "Games",
 				key: 'id'
 			},
-			allowNull: false
+			allowNull: false,
+			primaryKey: true
 		},
 		code: {
 			type: DataTypes.STRING,

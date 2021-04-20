@@ -16,6 +16,7 @@ module.exports = {
 					key: 'id'
 				},
 				allowNull: false,
+				primaryKey: true,
 				onDelete: 'cascade'
 			},
 			code: {
