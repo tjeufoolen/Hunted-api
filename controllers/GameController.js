@@ -64,13 +64,13 @@ class GameController extends Controller {
         let playerId = 1; // Keeps track of the current player Index
 
         for (let i = 0; i < req.body.players.police; i++) {
-            await this.createPlayer(game.id, playerId, 0);
-            playerId++;
+            const player = await this.createPlayer(game.id, playerId, 0);
+            if (player != null) playerId++;
         }
 
-        for (let i = 0; i < req.body.players.prisoners; i++) {
-            await this.createPlayer(game.id, playerId, 1);
-            playerId++;
+        for (let i = 0; i < req.body.players.thiefs; i++) {
+            const player = await this.createPlayer(game.id, playerId, 1);
+            if (player != null) playerId++;
         }
 
         // Fetch created game with players
@@ -199,7 +199,7 @@ class GameController extends Controller {
     validateCreate(data) {
         const playersSchema = Joi.object().keys({
             police: Joi.number().required(),
-            prisoners: Joi.number().required()
+            thiefs: Joi.number().required()
         });
 
         const schema = Joi.object({
@@ -222,6 +222,8 @@ class GameController extends Controller {
 
     async createPlayer(gameId, playerId, role) {
         playerId = parseInt(playerId);
+        if (isNaN(playerId)) return null;
+
         const code = await InviteTokenController.generate(gameId, playerId);
 
         return await Player.create({

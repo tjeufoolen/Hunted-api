@@ -51,22 +51,13 @@ class PlayerController extends Controller {
         const player = await Player.create({
             id: highestPlayerId + 1,
             gameId: game.id,
-            code: null,
+            code: await InviteTokenController.generate(game.id, player.id),
             playerRole: req.body.playerRole,
-            outOfTheGame: req.body.outOfTheGame,
+            outOfTheGame: false,
             locationId: null
         });
 
-        // Create invite code
-        const code = await InviteTokenController.generate(game.id, player.id);
-
-        // Update player
-        player.code = code;
-
-        // Save player with code
-        const savedPlayer = await player.save();
-
-        return ResponseBuilder.build(res, 200, savedPlayer);
+        return ResponseBuilder.build(res, 200, player);
     }
 
     async get(req, res, next) {
@@ -158,17 +149,11 @@ class PlayerController extends Controller {
             const newPlayer = await Player.create({
                 id: playerId,
                 gameId: game.id,
-                code: null,
+                code: await InviteTokenController.generate(game.id, newPlayer.id),
                 playerRole: req.body.playerRole,
                 outOfTheGame: req.body.outOfTheGame,
                 locationId: null
             });
-
-            // Create and set invite code
-            newPlayer.code = await InviteTokenController.generate(game.id, newPlayer.id);
-
-            // Update player with newly created player
-            await newPlayer.save();
 
             // Fetch created player with game reference
             player = Player.findOne({
@@ -260,7 +245,6 @@ class PlayerController extends Controller {
     validatePost(data) {
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
-            outOfTheGame: Joi.boolean().required(),
         });
 
         return schema.validate(data).error;
