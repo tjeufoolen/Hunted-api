@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
 				model: "Users",
 				key: 'id'
 			},
-			allowNull: false,
+			allowNull: false
 		},
 		startAt: {
 			type: DataTypes.DATE,

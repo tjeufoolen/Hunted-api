@@ -11,6 +11,7 @@ class UserController extends Controller {
 		this.signup = this.signup.bind(this);
 		this.getById = this.getById.bind(this);
 		this.get = this.get.bind(this);
+		this.delete = this.delete.bind(this);
 	}
 
 	async signup(req, res, next) {
@@ -44,6 +45,19 @@ class UserController extends Controller {
 	async get(req, res, next) {
 		const users = await User.scope("users_api_return").findAll();
 		ResponseBuilder.build(res, 200, users);
+	}
+
+	async delete(req, res, next) {
+		// Delete user
+		const destroyedUser = await User.destroy({
+			where: {
+				id: req.params.userId
+			}
+		});
+		if (!destroyedUser) return this.error(next, 400, "The specified user could not be removed.", "user_remove_fail")
+
+		// Return success message
+		ResponseBuilder.build(res, 200, { message: "Success!" });
 	}
 
 	validateSignup(data) {
