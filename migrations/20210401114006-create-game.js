@@ -15,6 +15,7 @@ module.exports = {
           key: 'id'
         },
         allowNull: false,
+        onDelete: 'cascade'
       },
       startAt: {
         type: Sequelize.DATE,
@@ -34,9 +35,9 @@ module.exports = {
         defaultValue: Sequelize.fn('now')
       },
     },
-    {
-      updatedAt: false
-    });
+      {
+        updatedAt: false
+      });
 
   },
   down: async (queryInterface, Sequelize) => {
