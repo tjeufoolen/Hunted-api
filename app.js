@@ -7,6 +7,8 @@ const express = require('express');
 const logger = require('morgan');
 const ResponseBuilder = require('./utils/ResponseBuilder');
 
+require("./socket");
+
 // Load models
 require("./models/index");
 
@@ -22,6 +24,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/test.html');
+});
 
 // Define routes
 app.use('/', require('./routes/api'));
