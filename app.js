@@ -25,6 +25,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
+
+// var moment = require('moment');
+// const CronManager = require("./managers/CronManager")
+// const io = require('./utils/socket');
+// CronManager.add("Rick",1,() => { console.log("hallo") }, moment().add(3, "m"));
+
+
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/test.html');
 });

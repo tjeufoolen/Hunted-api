@@ -1,32 +1,49 @@
 const cron = require('cron').CronJob;
+const moment = require('moment');
 
-export class CronManager{
+class CronManager{
     constructor(){
         this._jobs = {};
     }
 
-    add(name, periodText, fn, endDateTime) {
+    /**
+     * 
+     * @param {string} name 
+     * @param {string} interval 
+     * @param {*} callback 
+     * @param {datetime} endDateTime (moment js)
+     */
+    add(name, interval, callback, endDateTime){
         this._jobs[name] = {
-            name,
-            cron: new CronJob(periodText, fn, null, true),
+            name: name,
+            cron: new cron(`*/${interval} * * * *`, () => {
+                if(moment() > endDateTime){
+                    this.stop(name);
+                    return;
+                }
+
+                callback()
+            }, null, true),
             endDateTime: endDateTime
         };
     }
 
     stop(name) {
-        delete this._jobs[name];
+        if(this._jobs[name] != undefined){
+            this._jobs[name].cron.stop()
+            this.delete(name)
+        }
     }
 
     delete(name) {
-        delete this._jobs[name];
+        if(this._jobs[name] != undefined) delete this._jobs[name];
     }
 
     stopAll() {
-        for (let cron in this._jobs) {
-            let activeCron = this._jobs[cron].cron.running;
-            if (activeCron.running) {
-                this.stop(activeCron.name)
-            }
+        for (const cron in this._jobs) {
+            const job = this._jobs[cron];
+            if (this.running(job.name)) 
+                this.stop(job.name);
         }
     }
 
@@ -46,3 +63,5 @@ export class CronManager{
         return this._jobs[name].cron.nextDates();
     }
 }
+
+module.exports = new CronManager();
