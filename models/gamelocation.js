@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       GameLocation.belongsTo(models.LocationType,{
-        as: 'gameLocationType'
+        as: 'LocationType'
       });
       GameLocation.hasOne(models.Location, {
         as: 'location',

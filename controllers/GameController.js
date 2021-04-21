@@ -2,9 +2,10 @@ const { Controller } = require('./Controller');
 
 const Joi = require('joi');
 
-const { Player, Game, GameLocation } = require("../models/index");
+const { Player, Game, GameLocation, sequelize } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
+const game = require('../models/game');
 
 class GameController extends Controller {
     constructor() {
@@ -28,12 +29,14 @@ class GameController extends Controller {
             where: {
                 code: req.body.code
             },
-            include: {
-                model: Game, as: "game", 
-                include: {
-                    model: GameLocation, as: "gameLocation"
-                }
-            }
+            include: [{
+                model: Game, as: "game", required: true,
+                include: [{
+                    model: GameLocation,
+                    as: "gameLocation",
+                    required: true
+                }]
+            }]
         });
         if (!player) return this.error(next, 400, "Invalid invite token");
 
