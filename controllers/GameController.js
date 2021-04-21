@@ -2,10 +2,11 @@ const { Controller } = require('./Controller');
 
 const Joi = require('joi');
 
-const { Player, Game, GameLocation, sequelize } = require("../models/index");
+const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
 const game = require('../models/game');
+const gamelocation = require('../models/gamelocation');
 
 class GameController extends Controller {
     constructor() {
@@ -25,16 +26,19 @@ class GameController extends Controller {
         if (error) return this.error(next, 400, 'Incomplete data');
 
         // Check if token is from a player
-        const player = await Player.findOne({
+        const player = await Player.findAll({
             where: {
                 code: req.body.code
             },
-            include: [{
-                model: Game, as: "game", required: true,
+            include: [{                    
+                model: Game, as: "game",
                 include: [{
                     model: GameLocation,
                     as: "gameLocation",
-                    required: true
+                    include: [{
+                        model: Location,
+                        as: "location"
+                    }]
                 }]
             }]
         });

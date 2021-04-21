@@ -13,12 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       GameLocation.belongsTo(models.LocationType,{
         as: 'LocationType'
       });
-      GameLocation.hasOne(models.Location, {
+      GameLocation.belongsTo(models.Location,{
         as: 'location',
-        foreignKey: 'locationId'
       });
       GameLocation.belongsTo(models.Game, {
-        as: 'gameLocation'
+        as: 'game'
       });
     }
   };
