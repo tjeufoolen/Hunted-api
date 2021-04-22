@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'players',
 				onDelete: 'cascade'
 			});
+			Game.hasMany(models.GameLocation, {
+				as: 'gameLocations',
+			});
 		}
 	};
 	Game.init({

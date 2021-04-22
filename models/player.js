@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
 		 * The `models/index` file will call this method automatically.
 		 */
 		static associate(models) {
-			Player.hasOne(models.Location, {
-				as: 'location',
-				foreignKey: 'locationId'
-			});
 			Player.belongsTo(models.Game, {
 				as: 'game'
 			});
@@ -33,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
 				model: "Games",
 				key: 'id'
 			},
-			allowNull: false
+			allowNull: false,
+			primaryKey: true
 		},
 		code: {
 			type: DataTypes.STRING,

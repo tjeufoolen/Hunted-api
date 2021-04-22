@@ -3,7 +3,7 @@ const passport = require('passport');
 const UserController = require("../controllers/UserController");
 
 Router
-    .use("/:userId/game", require('./game'));
+    .use("/:userId/game", require('./game/game'));
 
 Router
     .route("/:userId")

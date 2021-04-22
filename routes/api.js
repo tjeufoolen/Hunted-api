@@ -3,7 +3,7 @@ const GameController = require('../controllers/GameController');
 
 Router
     .use('/auth', require('./auth'))
-    .use('/game', require('./game'))
+    .use('/game', require('./game/game'))
     .use('/user', require('./user'))
     .post('/join', GameController.join);
 
