@@ -38,7 +38,7 @@ class GameController extends Controller {
                     where: {
                         isPickedUp: null
                     },
-                    attributes: ["id", "name", "locationType"],
+                    attributes: ["id", "name", "type"],
                     include: [
                         {
                             model: Location,

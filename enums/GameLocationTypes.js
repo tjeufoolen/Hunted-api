@@ -1,10 +1,10 @@
 const enumValue = (key, value) => Object.freeze({
-    toString: () => `LocationTypes.${key}`,
+    toString: () => `GameLocationTypes.${key}`,
     value,
     equals: (other) => other.value == value
 });
 
-const LocationTypes = Object.freeze({
+const GameLocationTypes = Object.freeze({
     TREASURE: enumValue('TREASURE', 0),
     POLICE_STATION: enumValue('POLICE_STATION', 1),
 
@@ -27,4 +27,4 @@ const LocationTypes = Object.freeze({
     },
 });
 
-module.exports.LocationTypes = LocationTypes;
+module.exports.GameLocationTypes = GameLocationTypes;

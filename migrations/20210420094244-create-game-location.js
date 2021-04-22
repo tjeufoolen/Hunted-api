@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING,
         require: true,
       },
-      locationType: {
+      type: {
         type: Sequelize.INTEGER
       },
       gameId:

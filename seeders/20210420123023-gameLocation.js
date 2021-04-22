@@ -1,18 +1,18 @@
 'use strict';
 
-const { LocationTypes } = require('../enums/LocationTypes');
+const { GameLocationTypes } = require('../enums/GameLocationTypes');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('GameLocations', [{
       locationId: 1,
       name: "Politie hoofdkantoor",
-      locationType: LocationTypes.POLICE_STATION.value,
+      type: GameLocationTypes.POLICE_STATION.value,
       gameId: 1,
     }, {
       locationId: 2,
       name: "Juweel",
-      locationType: LocationTypes.TREASURE.value,
+      type: GameLocationTypes.TREASURE.value,
       gameId: 1,
     }],
     )

@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       require: true,
     },
-    locationType: {
+    type: {
       type: DataTypes.INTEGER,
       required: true,
     },
