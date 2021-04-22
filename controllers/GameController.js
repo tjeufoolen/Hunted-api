@@ -31,7 +31,7 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "minutes"],
+                attributes: ["id", "userId", "startAt", "minutes"],
                 include: [{
                     model: GameLocation,
                     as: "gameLocations",
