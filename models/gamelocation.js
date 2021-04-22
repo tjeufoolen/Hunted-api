@@ -10,10 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      GameLocation.belongsTo(models.LocationType,{
-        as: 'LocationType'
-      });
-      GameLocation.belongsTo(models.Location,{
+      GameLocation.belongsTo(models.Location, {
         as: 'location',
       });
       GameLocation.belongsTo(models.Game, {
@@ -22,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   GameLocation.init({
-    id:{
+    id: {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
@@ -37,16 +34,12 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     name: {
-      type:  DataTypes.STRING,
+      type: DataTypes.STRING,
       require: true,
     },
-    locationTypeId: {
-      type:  DataTypes.INTEGER,
-      references:
-      {
-        model: "LocationType",
-        key: 'id'
-      }
+    locationType: {
+      type: DataTypes.INTEGER,
+      required: true,
     },
     gameId:
     {

@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 				onDelete: 'cascade'
 			});
 			Game.hasMany(models.GameLocation, {
-				as: 'gameLocation',
+				as: 'gameLocations',
 			});
 		}
 	};

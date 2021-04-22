@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING,
         require: true,
       },
-      locationTypeId: {
+      locationType: {
         type: Sequelize.INTEGER
       },
       gameId:
@@ -27,10 +27,10 @@ module.exports = {
         default: false,
       }
     },
-    {
-      updatedAt: false,
-      createdAt: false
-    });
+      {
+        updatedAt: false,
+        createdAt: false
+      });
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('GameLocations');

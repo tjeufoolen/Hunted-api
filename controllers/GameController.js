@@ -5,8 +5,6 @@ const Joi = require('joi');
 const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
-const game = require('../models/game');
-const gamelocation = require('../models/gamelocation');
 
 class GameController extends Controller {
     constructor() {
@@ -30,15 +28,24 @@ class GameController extends Controller {
             where: {
                 code: req.body.code
             },
-            include: [{                    
+            attributes: ["id", "playerRole", "outOfTheGame"],
+            include: [{
                 model: Game, as: "game",
+                attributes: ["id", "startAt", "minutes"],
                 include: [{
                     model: GameLocation,
-                    as: "gameLocation",
-                    include: [{
-                        model: Location,
-                        as: "location"
-                    }]
+                    as: "gameLocations",
+                    where: {
+                        isPickedUp: null
+                    },
+                    attributes: ["id", "name", "locationType"],
+                    include: [
+                        {
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longtitude"],
+                        }
+                    ]
                 }]
             }]
         });
