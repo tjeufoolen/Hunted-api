@@ -24,7 +24,7 @@ class GameController extends Controller {
         if (error) return this.error(next, 400, 'Incomplete data');
 
         // Check if token is from a player
-        const player = await Player.findAll({
+        const player = await Player.findOne({
             where: {
                 code: req.body.code
             },
