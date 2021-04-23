@@ -30,6 +30,7 @@ class CronManager{
 
     stop(name) {
         if(exists(name)){
+
             this._jobs[name].cron.stop()
             this.delete(name)
         }
