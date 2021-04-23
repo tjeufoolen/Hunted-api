@@ -50,6 +50,7 @@ class PlayerController extends Controller {
             highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
         }
 
+
         // Create player
         const player = await Player.create({
             id: highestPlayerId + 1,

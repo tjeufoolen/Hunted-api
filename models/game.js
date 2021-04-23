@@ -2,6 +2,9 @@
 const {
 	Model
 } = require('sequelize');
+
+const moment = require('moment');
+
 module.exports = (sequelize, DataTypes) => {
 	class Game extends Model {
 		/**
@@ -18,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
 			Game.hasMany(models.Player, {
 				as: 'players',
 				onDelete: 'cascade'
+			});
+			Game.hasMany(models.GameLocation, {
+				as: 'gameLocations',
 			});
 		}
 	};
@@ -38,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		startAt: {
 			type: DataTypes.DATE,
-			allowNull: false
+			allowNull: false,
 		},
 		minutes: {
 			type: DataTypes.INTEGER,

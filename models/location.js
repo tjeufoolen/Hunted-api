@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Location.belongsTo(models.Player,{
-        as: 'player',
+      Location.belongsTo(models.Player, {
+				as: 'player',
         foreignKey: 'locationId'
-      })
+			});
     }
   };
   Location.init({
@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER
     },
     latitude: {
-      type: DataTypes.GEOMETRY
+      type: DataTypes.DOUBLE
     },
     longtitude: {
-      type: DataTypes.GEOMETRY
+      type: DataTypes.DOUBLE
     },
     updatedAt: {
       allowNull: false,
@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
+    createdAt: false,
     modelName: 'Location',
   });
   return Location;

@@ -2,7 +2,7 @@ const { Controller } = require('./Controller');
 
 const Joi = require('joi');
 
-const { Player, Game } = require("../models/index");
+const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
 
@@ -28,10 +28,26 @@ class GameController extends Controller {
             where: {
                 code: req.body.code
             },
-            include: {
-                model: Game,
-                as: 'game'
-            }
+            attributes: ["id", "playerRole", "outOfTheGame"],
+            include: [{
+                model: Game, as: "game",
+                attributes: ["id", "startAt", "minutes"],
+                include: [{
+                    model: GameLocation,
+                    as: "gameLocations",
+                    where: {
+                        isPickedUp: null
+                    },
+                    attributes: ["id", "name", "type"],
+                    include: [
+                        {
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longtitude"],
+                        }
+                    ]
+                }]
+            }]
         });
         if (!player) return this.error(next, 400, "Invalid invite token");
 
