@@ -6,8 +6,8 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 const ResponseBuilder = require('./utils/ResponseBuilder');
-
-require("./socket");
+const moment = require('moment-timezone');
+moment.tz.setDefault("Europe/Amsterdam");
 
 // Load models
 require("./models/index");
@@ -24,17 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
-
-
-// var moment = require('moment');
-// const CronManager = require("./managers/CronManager")
-// const io = require('./utils/socket');
-// CronManager.add("Rick",1,() => { console.log("hallo") }, moment().add(3, "m"));
-
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/test.html');
-});
 
 // Define routes
 app.use('/', require('./routes/api'));

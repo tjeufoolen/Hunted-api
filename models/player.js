@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
 			Player.belongsTo(models.Game, {
 				as: 'game'
 			});
+
+			Player.hasOne(models.Location, {
+				as: 'location',
+				foreignKey: 'id'
+			});
 		}
 	};
 	Player.init({
