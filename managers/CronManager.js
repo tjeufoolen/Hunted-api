@@ -29,14 +29,14 @@ class CronManager{
     }
 
     stop(name) {
-        if(this._jobs[name] != undefined){
+        if(exists(name)){
             this._jobs[name].cron.stop()
             this.delete(name)
         }
     }
 
     delete(name) {
-        if(this._jobs[name] != undefined) delete this._jobs[name];
+        if(exists(name)) delete this._jobs[name];
     }
 
     stopAll() {
@@ -52,17 +52,23 @@ class CronManager{
     }
 
     running(name) {
-        if(this._jobs[name] != undefined){
+        if(exists(name)){
             return this._jobs[name].cron.running;
         }
     }
 
     lastDate(name) {
-        return this._jobs[name].cron.lastDate();
+
+            return this._jobs[name].cron.lastDate();
     }
 
     nextDates(name) {
-        return this._jobs[name].cron.nextDates();
+        if(exists(name))
+            return this._jobs[name].cron.nextDates();
+    }
+
+    exists(name){
+        return this._jobs[name] != undefined
     }
 }
 
