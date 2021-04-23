@@ -52,7 +52,9 @@ class CronManager{
     }
 
     running(name) {
-        return this._jobs[name].cron.running;
+        if(this._jobs[name] != undefined){
+            return this._jobs[name].cron.running;
+        }
     }
 
     lastDate(name) {

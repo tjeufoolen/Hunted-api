@@ -131,6 +131,10 @@ class GameController extends Controller {
             return this.error(next, 404, 'Item not found');
         }
 
+        if(CronManager.running(game.id)) {
+            return this.error(next, 409, 'Process already running');
+        }
+
         // TODO: interval hardcoded
         CronManager.add(game.id, 5, async () => {
             const locations = await Game.findOne({
