@@ -17,8 +17,9 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			User.hasMany(models.Game, {
 				as: 'games',
-				foreignKey: 'userId'
-			})
+				foreignKey: 'userId',
+				onDelete: 'cascade'
+			});
 		}
 	};
 	User.init({

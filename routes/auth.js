@@ -13,4 +13,8 @@ Router
   .route('/signup')
   .post([passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })], UserController.signup);
 
+Router
+  .route('/validate')
+  .post(AuthController.validate);
+
 module.exports = Router;
