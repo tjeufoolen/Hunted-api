@@ -6,8 +6,6 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 const ResponseBuilder = require('./utils/ResponseBuilder');
-const moment = require('moment-timezone');
-moment.tz.setDefault("Europe/Amsterdam");
 
 // Load models
 require("./models/index");
