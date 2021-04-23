@@ -19,6 +19,7 @@ class GameController extends Controller {
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
+        this.startGame = this.startGame.bind(this);
     }
 
     async join(req, res, next) {
@@ -126,6 +127,10 @@ class GameController extends Controller {
         // Fetch game
         game = await Game.findOne(filter); 
         
+        if(game == null){
+            return this.error(next, 404, 'Item not found');
+        }
+
         // TODO: interval hardcoded
         CronManager.add(game.id, 5, async () => {
             const locations = await Game.findOne({
