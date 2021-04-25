@@ -133,22 +133,32 @@ class GameLocationController extends Controller {
                 ]
             },
             include: {
-                model: Game,
-                as: 'game'
+                model: Location,
+                as: 'location'
             }
         });
         if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
 
+        // Fetch Location
+        const location = await Location.findOne({
+            where: {
+                id: gameLocation.id
+            }
+        })
+
+
         // Update specified fields on game location
         if (req.body.name != undefined) gameLocation.name = req.body.name
         if (req.body.type != undefined) gameLocation.type = req.body.type
+        if (req.body.location.latitude != undefined || req.body.location.longtitude != undefined) location.latitude = req.body.location.latitude, location.longtitude = req.body.location.longtitude
 
 
         // Save updated fields on game location
         const updatedGameLocation = await gameLocation.save();
+        const updatedLocation = await location.save();
 
         // Return updated game location
-        return ResponseBuilder.build(res, 200, updatedGameLocation);
+        return ResponseBuilder.build(res, 200, (updatedGameLocation,updatedLocation));
     }
 
     async delete(req, res, next) {
