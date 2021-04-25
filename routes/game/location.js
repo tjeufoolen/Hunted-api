@@ -5,6 +5,7 @@ const GameLocationController = require('../../controllers/GameLocationController
 Router 
     .route("/:locationId")
     .get(GameLocationController.getById)
+    .patch(GameLocationController.patch)
     .delete(GameLocationController.delete);
 
 Router

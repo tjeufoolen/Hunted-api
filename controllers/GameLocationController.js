@@ -15,58 +15,9 @@ class GameLocationController extends Controller {
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
         this.post = this.post.bind(this);
+        this.patch = this.patch.bind(this);
+        this.delete = this.delete.bind(this);
     }
-
-    async post(req,res,next) {
-        // if (req.params.userId) {
-        //     // Check if authenticated user has permission to create game under specified userId
-        //     if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
-        //         return this.error(next, 403, 'Unauthorized');
-        //     }
-        // }
-        
-        const location = await Location.create({
-            latitude: req.body.location.latitude,
-            longtitude: req.body.location.longtitude
-        })
-
-        const game = await Game.findOne({
-            where: {
-                id: req.params.gameId
-            },
-            include: {
-                model: GameLocation,
-                as: 'gameLocations'
-            }
-        });
-
-        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
-
-        // Check if caller has permission to access resource
-        // if (req.user.id != game.userId && !req.user.isAdmin)
-        //     return this.error(next, 403, 'Unauthorized');
-
-        const gamelocation = await GameLocation.create({
-            locationId: location.id,
-            name: req.body.name,
-            type: req.body.type,
-            gameId: game.id,
-        })
-
-        const fetchedGameLocation = await GameLocation.findOne({
-            where: {
-                id: gamelocation.id
-            },
-            include: {
-                model: Location,
-                as: "location",
-                attributes: ["latitude", "longtitude"],
-            }
-        })
-
-        ResponseBuilder.build(res, 200, fetchedGameLocation);
-    }
-
 
     async get(req,res,next){
         let gameLocation = [];
@@ -111,13 +62,102 @@ class GameLocationController extends Controller {
         return ResponseBuilder.build(res, 200, gameLocation);
     }
 
+    async post(req,res,next) {
+        // if (req.params.userId) {
+        //     // Check if authenticated user has permission to create game under specified userId
+        //     if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+        //         return this.error(next, 403, 'Unauthorized');
+        //     }
+        // }
+        
+        const location = await Location.create({
+            latitude: req.body.location.latitude,
+            longtitude: req.body.location.longtitude
+        })
+
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            },
+            include: {
+                model: GameLocation,
+                as: 'gameLocations'
+            }
+        });
+
+        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
+
+        // Check if caller has permission to access resource
+        // if (req.user.id != game.userId && !req.user.isAdmin)
+        //     return this.error(next, 403, 'Unauthorized');
+
+        const gamelocation = await GameLocation.create({
+            locationId: location.id,
+            name: req.body.name,
+            type: req.body.type,
+            gameId: game.id,
+        })
+
+        // Fetch game Location
+        const fetchedGameLocation = await GameLocation.findOne({
+            where: {
+                id: gamelocation.id
+            },
+            include: {
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longtitude"],
+            }
+        })
+
+        ResponseBuilder.build(res, 200, fetchedGameLocation);
+    }
+
+    // ToDo: Does this really need to be in here?
+    // async put(req,res,next)
+    // {
+
+    // }
+
+    async patch(req, res, next)
+    {
+        // const error = this.validatePatch(req.body);
+        // if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Fetch game Location
+        const gameLocation = await GameLocation.findOne({
+            where: {
+                [Op.and]: [
+                    {id: req.params.locationId},
+                    {gameId: req.params.gameId}
+                ]
+            },
+            include: {
+                model: Game,
+                as: 'game'
+            }
+        });
+        if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
+
+        // Update specified fields on game location
+        if (req.body.name != undefined) gameLocation.name = req.body.name
+        if (req.body.type != undefined) gameLocation.type = req.body.type
+
+
+        // Save updated fields on game location
+        const updatedGameLocation = await gameLocation.save();
+
+        // Return updated game location
+        return ResponseBuilder.build(res, 200, updatedGameLocation);
+    }
+
     async delete(req, res, next) {
         if (!req.params.gameId || !req.params.locationId)
         {
             return this.error(next, 400, 'Incomplete data');
         }
 
-        // Fetch gameLocation
+        // Fetch game Location
         const gameLocation = await GameLocation.findOne({
             where: {
                 [Op.and]: [
