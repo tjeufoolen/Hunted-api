@@ -50,6 +50,12 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
+		endAt: {
+			type: DataTypes.VIRTUAL,
+			get () {
+				return moment(this.get("startAt")).add(this.get("minutes"), "m")
+			}
+		},
 		layoutTemplateId: {
 			type: DataTypes.INTEGER,
 			allowNull: false

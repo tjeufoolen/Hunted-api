@@ -14,6 +14,8 @@ require("./models/index");
 require('./middleware/AuthMiddleware');
 require('./middleware/AdminMiddleware');
 
+require("./sockets")
+
 // Initialize express
 const app = express();
 
@@ -22,6 +24,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+
+// ToDo: for testing
+app.get("/", (req, res, next) => {
+	res.sendFile(__dirname + "/test.html")
+})
 
 // Define routes
 app.use('/', require('./routes/api'));
