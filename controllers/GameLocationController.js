@@ -121,9 +121,68 @@ class GameLocationController extends Controller {
         ResponseBuilder.build(res, 200, fetchedGameLocation);
     }
 
-    // ToDo: put
     async put(req,res,next)
     {
+        // Fetch game Location
+        let gameLocation = await GameLocation.findOne({
+            where: {
+                [Op.and]: [
+                    {id: req.params.locationId},
+                    {gameId: req.params.gameId}
+                ]
+            },
+            include: {
+                model: Location,
+                as: 'location'
+            }
+        });
+        if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
+
+        // Fetch Location
+        let location = await Location.findOne({
+            where: {
+                id: gameLocation.id
+            }
+        });
+
+        // Update Specific fields on game location and location
+        if(gameLocation){
+            gameLocation.name = req.body.name
+            gameLocation.type = req.body.type
+            location.latitude = req.body.location.latitude 
+            location.longitude = req.body.location.longitude
+
+            // Save updated fields game location and location
+            gameLocation = await gameLocation.save();
+            location = await location.save();
+        }
+        else {
+            const newLocation = await Location.create({
+                latitude: req.body.location.latitude,
+                longitude: req.body.location.longitude
+            });
+
+            const newGameLocation = await GameLocation.create({
+                locationId: newLocation.id,
+                name: req.body.name,
+                type: req.body.type,
+                gameId: game.id,
+            });
+        }
+
+        gameLocation = await GameLocation.findOne({
+            where: {
+                id: gamelocation.id
+            },
+            include: {
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }
+        });
+
+        // Return updated game location
+        return ResponseBuilder.build(res, 200, gameLocation);
 
     }
 
@@ -158,7 +217,7 @@ class GameLocationController extends Controller {
         // Update specified fields on game location
         if (req.body.name != undefined) gameLocation.name = req.body.name
         if (req.body.type != undefined) gameLocation.type = req.body.type
-        if (req.body.location.latitude != undefined || req.body.location.longitude != undefined) location.latitude = req.body.location.latitude, location.longitude = req.body.location.longitude
+        if (req.body.location != undefined) location.latitude = req.body.location.latitude, location.longitude = req.body.location.longitude
 
 
         // Save updated fields on game location
