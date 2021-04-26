@@ -43,7 +43,7 @@ class GameController extends Controller {
                         {
                             model: Location,
                             as: "location",
-                            attributes: ["latitude", "longtitude"],
+                            attributes: ["latitude", "longitude"],
                         }
                     ]
                 }]

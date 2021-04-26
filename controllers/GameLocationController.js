@@ -19,6 +19,15 @@ class GameLocationController extends Controller {
         this.delete = this.delete.bind(this);
     }
 
+    /*
+    TODO:
+        - Put
+        - Authentication
+        - Validation
+        - Clean up
+        - Testing
+    */
+
     async get(req,res,next){
         let gameLocation = [];
         let filter = {
@@ -26,7 +35,7 @@ class GameLocationController extends Controller {
             include: {
                 model: Location,
                 as: "location",
-                attributes: ["latitude", "longtitude"],
+                attributes: ["latitude", "longitude"],
             }
         };
 
@@ -36,7 +45,6 @@ class GameLocationController extends Controller {
         // return gameLocation
         return ResponseBuilder.build(res, 200, gameLocation);
     }
-
 
     async getById(req, res, next) {
         if(!req.params.gameId || !req.params.locationId)
@@ -53,7 +61,7 @@ class GameLocationController extends Controller {
             {
                 model: Location,
                 as: "location",
-                attributes: ["latitude", "longtitude"],
+                attributes: ["latitude", "longitude"],
             }
         });
 
@@ -72,7 +80,7 @@ class GameLocationController extends Controller {
         
         const location = await Location.create({
             latitude: req.body.location.latitude,
-            longtitude: req.body.location.longtitude
+            longitude: req.body.location.longitude
         })
 
         const game = await Game.findOne({
@@ -106,18 +114,18 @@ class GameLocationController extends Controller {
             include: {
                 model: Location,
                 as: "location",
-                attributes: ["latitude", "longtitude"],
+                attributes: ["latitude", "longitude"],
             }
         })
 
         ResponseBuilder.build(res, 200, fetchedGameLocation);
     }
 
-    // ToDo: Does this really need to be in here?
-    // async put(req,res,next)
-    // {
+    // ToDo: put
+    async put(req,res,next)
+    {
 
-    // }
+    }
 
     async patch(req, res, next)
     {
@@ -150,7 +158,7 @@ class GameLocationController extends Controller {
         // Update specified fields on game location
         if (req.body.name != undefined) gameLocation.name = req.body.name
         if (req.body.type != undefined) gameLocation.type = req.body.type
-        if (req.body.location.latitude != undefined || req.body.location.longtitude != undefined) location.latitude = req.body.location.latitude, location.longtitude = req.body.location.longtitude
+        if (req.body.location.latitude != undefined || req.body.location.longitude != undefined) location.latitude = req.body.location.latitude, location.longitude = req.body.location.longitude
 
 
         // Save updated fields on game location
