@@ -136,7 +136,7 @@ class GameController extends Controller {
         }
 
         // TODO: interval hardcoded
-        CronManager.add(game.id, 5, async () => {
+        CronManager.add(game.id, 1, async () => {
             const locations = await Game.findOne({
                 where: {
                     id: game.id
@@ -144,7 +144,7 @@ class GameController extends Controller {
                 attributes: ["id"],
                 include: [{
                     model: Player, as: "players",
-                    attributes: ["id"],
+                    attributes: ["id", "playerRole"],
                     include: [{
                         model: Location,
                         as: "location",
@@ -152,7 +152,6 @@ class GameController extends Controller {
                     }]
                 }]
             });
-
             io.to(game.id).emit("locations", locations)
         }, game.endAt)
 

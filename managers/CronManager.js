@@ -29,7 +29,7 @@ class CronManager{
     }
 
     stop(name) {
-        if(exists(name)){
+        if(this.exists(name)){
 
             this._jobs[name].cron.stop()
             this.delete(name)
@@ -37,7 +37,7 @@ class CronManager{
     }
 
     delete(name) {
-        if(exists(name)) delete this._jobs[name];
+        if(this.exists(name)) delete this._jobs[name];
     }
 
     stopAll() {
@@ -53,18 +53,17 @@ class CronManager{
     }
 
     running(name) {
-        if(exists(name)){
+        if(this.exists(name)){
             return this._jobs[name].cron.running;
         }
     }
 
     lastDate(name) {
-
-            return this._jobs[name].cron.lastDate();
+        return this._jobs[name].cron.lastDate();
     }
 
     nextDates(name) {
-        if(exists(name))
+        if(this.exists(name))
             return this._jobs[name].cron.nextDates();
     }
 

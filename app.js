@@ -6,8 +6,6 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 const ResponseBuilder = require('./utils/ResponseBuilder');
-const moment = require('moment-timezone');
-moment.tz.setDefault("Europe/Amsterdam");
 
 // Load models
 require("./models/index");
@@ -15,6 +13,8 @@ require("./models/index");
 // Load middlewares
 require('./middleware/AuthMiddleware');
 require('./middleware/AdminMiddleware');
+
+require("./sockets")
 
 // Initialize express
 const app = express();
@@ -24,6 +24,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+
+app.get("/", (req, res, next) => {
+	res.sendFile(__dirname + "/test.html")
+})
 
 // Define routes
 app.use('/', require('./routes/api'));
