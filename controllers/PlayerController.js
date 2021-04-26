@@ -50,25 +50,17 @@ class PlayerController extends Controller {
             return this.error(next, 403, 'Unauthorized');
 
         // Get current highest player id
-<<<<<<< HEAD
         let highestPlayerId = 0;
         if (game.players.length > 0) {
             highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
         }
 
-=======
-        const highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
->>>>>>> 5cc2317eafca34ec70cc05974de6e6ecd5b0fa2a
 
         // Create player
         const player = await Player.create({
             id: highestPlayerId + 1,
             gameId: game.id,
-<<<<<<< HEAD
             code: await InviteTokenController.generate(game.id, highestPlayerId + 1),
-=======
-            code: await InviteTokenController.generate(game.id, player.id),
->>>>>>> 5cc2317eafca34ec70cc05974de6e6ecd5b0fa2a
             playerRole: req.body.playerRole,
             outOfTheGame: false,
             locationId: null
@@ -166,11 +158,7 @@ class PlayerController extends Controller {
             const newPlayer = await Player.create({
                 id: playerId,
                 gameId: game.id,
-<<<<<<< HEAD
                 code: await InviteTokenController.generate(game.id, playerId),
-=======
-                code: await InviteTokenController.generate(game.id, newPlayer.id),
->>>>>>> 5cc2317eafca34ec70cc05974de6e6ecd5b0fa2a
                 playerRole: req.body.playerRole,
                 outOfTheGame: req.body.outOfTheGame,
                 locationId: null
