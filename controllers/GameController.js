@@ -47,7 +47,7 @@ class GameController extends Controller {
                         {
                             model: Location,
                             as: "location",
-                            attributes: ["latitude", "longtitude"],
+                            attributes: ["latitude", "longitude"],
                         }
                     ]
                 }]
@@ -148,7 +148,7 @@ class GameController extends Controller {
                     include: [{
                         model: Location,
                         as: "location",
-                        attributes: ["latitude", "longtitude"],
+                        attributes: ["latitude", "longitude"],
                     }]
                 }]
             });

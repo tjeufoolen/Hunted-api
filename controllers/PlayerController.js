@@ -18,6 +18,11 @@ class PlayerController extends Controller {
         this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
+        this.updateLocaton = this.updateLocaton.bind(this);
+    }
+
+    async updateLocaton(location) {
+
     }
 
     async post(req, res, next) {

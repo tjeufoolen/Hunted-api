@@ -11,7 +11,7 @@ module.exports = {
       latitude: {
         type: Sequelize.DOUBLE
       },
-      longtitude: {
+      longitude: {
         type: Sequelize.DOUBLE
       },
       updatedAt: {
