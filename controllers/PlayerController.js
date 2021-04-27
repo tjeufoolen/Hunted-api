@@ -22,7 +22,7 @@ class PlayerController extends Controller {
     }
 
     async updateLocation(location) {
-        const error = this.validatePutLocatoin(location);
+        const error = this.validatePutLocation(location);
         if (error) return;
 
         let player = await Player.findOne({
@@ -299,8 +299,7 @@ class PlayerController extends Controller {
         return schema.validate(data).error;
     }
 
-
-    validatePutLocatoin(data){
+    validatePutLocation(data){
         const schema = Joi.object({
             id: Joi.number().required(),
             latitude: Joi.number().required(),
