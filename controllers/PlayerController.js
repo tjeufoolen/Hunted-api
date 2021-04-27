@@ -3,7 +3,7 @@ const { Controller } = require('./Controller');
 const Joi = require('joi');
 const { Op } = require("sequelize");
 
-const { Player, Game } = require("../models/index");
+const { Player, Game, Location } = require("../models/index");
 const { PlayerRoles } = require("../enums/PlayerRoles");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
@@ -25,7 +25,6 @@ class PlayerController extends Controller {
         const error = this.validatePutLocatoin(location);
         if (error) return;
 
-
         let player = await Player.findOne({
             where: {
                 id: location.id
@@ -33,10 +32,19 @@ class PlayerController extends Controller {
         });
 
         let playerLocation = await player.getLocation();
-        playerLocation.longitude = location.longitude;
-        playerLocation.latitude = location.latitude;
 
-        playerLocation.save();
+        if(playerLocation == null){
+            let newlocation = await Location.create({longitude: location.longitude, latitude: location.latitude})
+
+            player.locationId = newlocation.id;
+            player.save();
+
+        } else{
+            playerLocation.longitude = location.longitude;
+            playerLocation.latitude = location.latitude;
+    
+            playerLocation.save();
+        }
     }
 
     async post(req, res, next) {
