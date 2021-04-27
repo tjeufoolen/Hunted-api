@@ -25,6 +25,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
+// const player = require("./controllers/PlayerController")
+
+// const location = {
+// 	id: 1,
+// 	latitude: 51.888529,
+// 	longitude: 10.605207
+// }
+
+// player.updateLocaton(location)
+
 // ToDo: for testing
 app.get("/", (req, res, next) => {
 	res.sendFile(__dirname + "/test.html")

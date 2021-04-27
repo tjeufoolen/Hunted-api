@@ -18,11 +18,25 @@ class PlayerController extends Controller {
         this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
-        this.updateLocaton = this.updateLocaton.bind(this);
+        this.updateLocation = this.updateLocation.bind(this);
     }
 
-    async updateLocaton(location) {
+    async updateLocation(location) {
+        const error = this.validatePutLocatoin(location);
+        if (error) return;
 
+
+        let player = await Player.findOne({
+            where: {
+                id: location.id
+            }
+        });
+
+        let playerLocation = await player.getLocation();
+        playerLocation.longitude = location.longitude;
+        playerLocation.latitude = location.latitude;
+
+        playerLocation.save();
     }
 
     async post(req, res, next) {
@@ -272,6 +286,17 @@ class PlayerController extends Controller {
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
             outOfTheGame: Joi.boolean().required(),
+        });
+
+        return schema.validate(data).error;
+    }
+
+
+    validatePutLocatoin(data){
+        const schema = Joi.object({
+            id: Joi.number().required(),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
         });
 
         return schema.validate(data).error;

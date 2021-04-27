@@ -8,6 +8,6 @@ io.on('connection', socket => {
 	});
 
     socket.on("send_location", location => {
-        PlayerController.updateLocaton(location)
+        PlayerController.updateLocation(location)
 	});
 });
