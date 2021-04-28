@@ -3,7 +3,7 @@ const { Controller } = require('./Controller');
 const Joi = require('joi');
 const { Op } = require("sequelize");
 
-const { Player, Game } = require("../models/index");
+const { Player, Game, Location } = require("../models/index");
 const { PlayerRoles } = require("../enums/PlayerRoles");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
@@ -18,6 +18,33 @@ class PlayerController extends Controller {
         this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
+        this.updateLocation = this.updateLocation.bind(this);
+    }
+
+    async updateLocation(location) {
+        const error = this.validatePutLocation(location);
+        if (error) return;
+
+        let player = await Player.findOne({
+            where: {
+                id: location.id
+            }
+        });
+
+        let playerLocation = await player.getLocation();
+
+        if(playerLocation == null){
+            let newlocation = await Location.create({longitude: location.longitude, latitude: location.latitude})
+
+            player.locationId = newlocation.id;
+            player.save();
+
+        } else{
+            playerLocation.longitude = location.longitude;
+            playerLocation.latitude = location.latitude;
+    
+            playerLocation.save();
+        }
     }
 
     async post(req, res, next) {
@@ -267,6 +294,16 @@ class PlayerController extends Controller {
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
             outOfTheGame: Joi.boolean().required(),
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validatePutLocation(data){
+        const schema = Joi.object({
+            id: Joi.number().required(),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
         });
 
         return schema.validate(data).error;

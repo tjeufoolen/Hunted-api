@@ -10,10 +10,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Location.belongsTo(models.Player, {
-				as: 'player',
-        foreignKey: 'locationId'
-			});
+      // not sure if somone need this association
+      // Location.belongsTo(models.Player, {
+			// 	as: 'player',
+      //   foreignKey: 'locationId',
+			// });
     }
   };
   Location.init({
@@ -26,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     latitude: {
       type: DataTypes.DOUBLE
     },
-    longtitude: {
+    longitude: {
       type: DataTypes.DOUBLE
     },
     updatedAt: {
