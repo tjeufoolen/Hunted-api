@@ -18,4 +18,9 @@ Router
     .get(GameController.get)
     .post([passport.authenticate('jwt', { session: false })], GameController.create);
 
+
+Router
+.route("/:gameId/start")
+.post([passport.authenticate('jwt', { session: false })], GameController.startGame)
+
 module.exports = Router;

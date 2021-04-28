@@ -3,7 +3,7 @@ const { Controller } = require('./Controller');
 const Joi = require('joi');
 const { Op } = require("sequelize");
 
-const { Player, Game } = require("../models/index");
+const { Player, Game, Location } = require("../models/index");
 const { PlayerRoles } = require("../enums/PlayerRoles");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
