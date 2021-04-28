@@ -7,7 +7,8 @@ Router
 
 Router
     .route("/:userId")
-    .get([passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })], UserController.getById);
+    .get([passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })], UserController.getById)
+    .delete([passport.authenticate('jwt', { session: false }), passport.authenticate('admin', { session: false })], UserController.delete);
 
 Router
     .route("/")

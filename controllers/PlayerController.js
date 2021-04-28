@@ -18,6 +18,33 @@ class PlayerController extends Controller {
         this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
+        this.updateLocation = this.updateLocation.bind(this);
+    }
+
+    async updateLocation(location) {
+        const error = this.validatePutLocation(location);
+        if (error) return;
+
+        let player = await Player.findOne({
+            where: {
+                id: location.id
+            }
+        });
+
+        let playerLocation = await player.getLocation();
+
+        if(playerLocation == null){
+            let newlocation = await Location.create({longitude: location.longitude, latitude: location.latitude})
+
+            player.locationId = newlocation.id;
+            player.save();
+
+        } else{
+            playerLocation.longitude = location.longitude;
+            playerLocation.latitude = location.latitude;
+    
+            playerLocation.save();
+        }
     }
 
     async post(req, res, next) {
@@ -45,13 +72,16 @@ class PlayerController extends Controller {
             return this.error(next, 403, 'Unauthorized');
 
         // Get current highest player id
-        const highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
+        let highestPlayerId = 0;
+        if (game.players.length > 0) {
+            highestPlayerId = game.players.map(player => player.id).sort().reverse()[0];
+        }
 
         // Create player
         const player = await Player.create({
             id: highestPlayerId + 1,
             gameId: game.id,
-            code: await InviteTokenController.generate(game.id, player.id),
+            code: await InviteTokenController.generate(game.id, highestPlayerId + 1),
             playerRole: req.body.playerRole,
             outOfTheGame: false,
             locationId: null
@@ -149,7 +179,7 @@ class PlayerController extends Controller {
             const newPlayer = await Player.create({
                 id: playerId,
                 gameId: game.id,
-                code: await InviteTokenController.generate(game.id, newPlayer.id),
+                code: await InviteTokenController.generate(game.id, playerId),
                 playerRole: req.body.playerRole,
                 outOfTheGame: req.body.outOfTheGame,
                 locationId: null
@@ -263,6 +293,16 @@ class PlayerController extends Controller {
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
             outOfTheGame: Joi.boolean().required(),
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validatePutLocation(data){
+        const schema = Joi.object({
+            id: Joi.number().required(),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
         });
 
         return schema.validate(data).error;

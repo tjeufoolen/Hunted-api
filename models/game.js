@@ -2,6 +2,9 @@
 const {
 	Model
 } = require('sequelize');
+
+const moment = require('moment');
+
 module.exports = (sequelize, DataTypes) => {
 	class Game extends Model {
 		/**
@@ -37,15 +40,21 @@ module.exports = (sequelize, DataTypes) => {
 				model: "Users",
 				key: 'id'
 			},
-			allowNull: false,
+			allowNull: false
 		},
 		startAt: {
 			type: DataTypes.DATE,
-			allowNull: false
+			allowNull: false,
 		},
 		minutes: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+		},
+		endAt: {
+			type: DataTypes.VIRTUAL,
+			get () {
+				return moment(this.get("startAt")).add(this.get("minutes"), "m")
+			}
 		},
 		layoutTemplateId: {
 			type: DataTypes.INTEGER,

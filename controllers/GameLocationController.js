@@ -19,7 +19,6 @@ class GameLocationController extends Controller {
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
     }
-
     async get(req,res,next){
         let gameLocation = [];
         let filter = {
@@ -84,6 +83,7 @@ class GameLocationController extends Controller {
                 as: 'gameLocations'
             }
         });
+      
         if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
 
         //Check if caller has permission to access resource
@@ -154,7 +154,7 @@ class GameLocationController extends Controller {
                     id: gameLocation.locationId
                 }
             })
-
+            
             gameLocation.name = req.body.name
             gameLocation.type = req.body.type
             location.latitude = req.body.location.latitude 
@@ -206,7 +206,6 @@ class GameLocationController extends Controller {
         const error = this.validatePatch(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
 
-
         // Fetch game Location
         const gameLocation = await GameLocation.findOne({
             where: {
@@ -225,7 +224,7 @@ class GameLocationController extends Controller {
         // Check if caller has permission to access resource
         if (req.user.id != gameLocation.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
-
+      
         // Fetch Location
         const location = await Location.findOne({
             where: {
@@ -250,7 +249,6 @@ class GameLocationController extends Controller {
     async delete(req, res, next) {
         if (!req.params.gameId || !req.params.locationId)
             return this.error(next, 400, 'Incomplete data');
-
 
         // Fetch game Location
         const gameLocation = await GameLocation.findOne({
