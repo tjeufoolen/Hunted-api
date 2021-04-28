@@ -67,7 +67,7 @@ class GameLocationController extends Controller {
             return this.error(next, 400, 'Incomplete data');
 
         // Validate data
-        const error = this.validatePost(req.body);
+        const error = this.validateCreate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
         
         const location = await Location.create({
@@ -118,7 +118,7 @@ class GameLocationController extends Controller {
             return this.error(next, 400, 'Incomplete data');
 
         // Validate data
-        const error = this.validatePut(req.body);
+        const error = this.validateCreate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
 
         // Fetch game
@@ -161,16 +161,18 @@ class GameLocationController extends Controller {
             location.longitude = req.body.location.longitude
 
             // Save updated fields game location and location
-            gameLocation = await gameLocation.save();
             location = await location.save();
+            gameLocation = await gameLocation.save();
         }
         else {
+            const gameLocationId = parseInt(req.params.locationId);
+            if (isNaN(gameLocationId)) return this.error(next, 400, 'Incomplete data')
+
             const newLocation = await Location.create({
                 latitude: req.body.location.latitude,
                 longitude: req.body.location.longitude
             });
 
-            const gameLocationId = parseInt(req.params.locationId);
             let newGameLocation = await GameLocation.create({
                 id: gameLocationId,
                 locationId: newLocation.id,
@@ -178,18 +180,18 @@ class GameLocationController extends Controller {
                 type: req.body.type,
                 gameId: req.params.gameId,
             });
-
-            gameLocation = await GameLocation.findOne({
-                where: {
-                    id: newGameLocation.id
-                },
-                include: {
-                    model: Location,
-                    as: "location",
-                    attributes: ["latitude", "longitude"],
-                }
-            });
         }
+
+        gameLocation = await GameLocation.findOne({
+            where: {
+                id: req.params.locationId
+            },
+            include: {
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }
+        });
 
         // Return updated game location
         return ResponseBuilder.build(res, 200, gameLocation);
@@ -276,22 +278,7 @@ class GameLocationController extends Controller {
         return ResponseBuilder.build(res, 200, gameLocation);
     }
 
-    validatePost(data) {
-        const locationSchema = Joi.object().keys({
-            latitude: Joi.number().required(),
-            longitude: Joi.number().required()
-        });
-
-        const schema = Joi.object({
-            name: Joi.string().required(),
-            type: Joi.number().valid(...GameLocationTypes.values()).required(),
-            location: locationSchema.required()
-        });
-
-        return schema.validate(data).error;
-    }
-
-    validatePut(data) {
+    validateCreate(data) {
         const locationSchema = Joi.object().keys({
             latitude: Joi.number().required(),
             longitude: Joi.number().required()
