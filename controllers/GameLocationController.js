@@ -21,15 +21,6 @@ class GameLocationController extends Controller {
         this.delete = this.delete.bind(this);
     }
 
-    /*
-    TODO:
-        - Put
-        - Authentication
-        - Validation
-        - Clean up
-        - Testing
-    */
-
     async get(req,res,next){
         let gameLocation = [];
         let filter = {
@@ -42,7 +33,7 @@ class GameLocationController extends Controller {
         };
 
         // fetch gameLocation
-        gameLocation = await GameLocation.findAll(filter);
+        gameLocations = await GameLocation.findAll(filter);
 
         // return gameLocation
         return ResponseBuilder.build(res, 200, gameLocation);
@@ -76,6 +67,7 @@ class GameLocationController extends Controller {
         if (!req.params.gameId)
             return this.error(next, 400, 'Incomplete data');
 
+        // Validate data
         const error = this.validatePost(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
         
@@ -130,10 +122,16 @@ class GameLocationController extends Controller {
         const error = this.validatePut(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
 
+        // Fetch game
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            }
+        });
+
         // Check if caller has permission to access resource
         if (req.user.id != game.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
-
 
         // Fetch game Location
         let gameLocation = await GameLocation.findOne({
@@ -224,7 +222,7 @@ class GameLocationController extends Controller {
         if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
 
         // Check if caller has permission to access resource
-        if (req.user.id != player.game.userId && !req.user.isAdmin)
+        if (req.user.id != gameLocation.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
 
         // Fetch Location
@@ -269,7 +267,7 @@ class GameLocationController extends Controller {
         if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
 
         // Check if caller has permission to access resource
-        if (req.user.id != player.game.userId && !req.user.isAdmin)
+        if (req.user.id != gameLocation.game.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
 
         // Delete Game Location
