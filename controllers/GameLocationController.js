@@ -6,7 +6,6 @@ const { Op } = require("sequelize");
 
 const {Location, GameLocation, Game} = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
-const { create } = require('../utils/slugger');
 const { GameLocationTypes } = require('../enums/GameLocationTypes');
 
 class GameLocationController extends Controller {
