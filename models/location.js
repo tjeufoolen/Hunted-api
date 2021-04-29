@@ -10,11 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // not sure if somone need this association
-      // Location.belongsTo(models.Player, {
-			// 	as: 'player',
-      //   foreignKey: 'locationId',
-			// });
+      // associations here
     }
   };
   Location.init({

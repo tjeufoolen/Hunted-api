@@ -6,7 +6,7 @@ const { Op } = require("sequelize");
 
 const {Location, GameLocation, Game} = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
-const { create } = require('../utils/slugger');
+const { GameLocationTypes } = require('../enums/GameLocationTypes');
 
 class GameLocationController extends Controller {
     constructor(){
@@ -15,21 +15,12 @@ class GameLocationController extends Controller {
         this.get = this.get.bind(this);
         this.getById = this.getById.bind(this);
         this.post = this.post.bind(this);
+        this.put = this.put.bind(this);
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
     }
-
-    /*
-    TODO:
-        - Put
-        - Authentication
-        - Validation
-        - Clean up
-        - Testing
-    */
-
     async get(req,res,next){
-        let gameLocation = [];
+        let gameLocations = [];
         let filter = {
             where: {gameId: req.params.gameId},
             include: {
@@ -40,10 +31,10 @@ class GameLocationController extends Controller {
         };
 
         // fetch gameLocation
-        gameLocation = await GameLocation.findAll(filter);
+        gameLocations = await GameLocation.findAll(filter);
 
         // return gameLocation
-        return ResponseBuilder.build(res, 200, gameLocation);
+        return ResponseBuilder.build(res, 200, gameLocations);
     }
 
     async getById(req, res, next) {
@@ -71,12 +62,12 @@ class GameLocationController extends Controller {
     }
 
     async post(req,res,next) {
-        // if (req.params.userId) {
-        //     // Check if authenticated user has permission to create game under specified userId
-        //     if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
-        //         return this.error(next, 403, 'Unauthorized');
-        //     }
-        // }
+        if (!req.params.gameId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Validate data
+        const error = this.validateCreate(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
         
         const location = await Location.create({
             latitude: req.body.location.latitude,
@@ -92,12 +83,12 @@ class GameLocationController extends Controller {
                 as: 'gameLocations'
             }
         });
-
+      
         if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
 
-        // Check if caller has permission to access resource
-        // if (req.user.id != game.userId && !req.user.isAdmin)
-        //     return this.error(next, 403, 'Unauthorized');
+        //Check if caller has permission to access resource
+        if (req.user.id != game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
 
         const gamelocation = await GameLocation.create({
             locationId: location.id,
@@ -123,6 +114,24 @@ class GameLocationController extends Controller {
 
     async put(req,res,next)
     {
+        if (!req.params.gameId || !req.params.locationId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Validate data
+        const error = this.validateCreate(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Fetch game
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            }
+        });
+
+        // Check if caller has permission to access resource
+        if (req.user.id != game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+
         // Fetch game Location
         let gameLocation = await GameLocation.findOne({
             where: {
@@ -136,43 +145,46 @@ class GameLocationController extends Controller {
                 as: 'location'
             }
         });
-        if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
-
-        // Fetch Location
-        let location = await Location.findOne({
-            where: {
-                id: gameLocation.id
-            }
-        });
 
         // Update Specific fields on game location and location
         if(gameLocation){
+            // Fetch Location
+            let location = await Location.findOne({
+                where: {
+                    id: gameLocation.locationId
+                }
+            })
+            
             gameLocation.name = req.body.name
             gameLocation.type = req.body.type
             location.latitude = req.body.location.latitude 
             location.longitude = req.body.location.longitude
 
             // Save updated fields game location and location
-            gameLocation = await gameLocation.save();
             location = await location.save();
+            gameLocation = await gameLocation.save();
         }
         else {
+            const gameLocationId = parseInt(req.params.locationId);
+            if (isNaN(gameLocationId)) return this.error(next, 400, 'Incomplete data')
+
             const newLocation = await Location.create({
                 latitude: req.body.location.latitude,
                 longitude: req.body.location.longitude
             });
 
-            const newGameLocation = await GameLocation.create({
+            let newGameLocation = await GameLocation.create({
+                id: gameLocationId,
                 locationId: newLocation.id,
                 name: req.body.name,
                 type: req.body.type,
-                gameId: game.id,
+                gameId: req.params.gameId,
             });
         }
 
         gameLocation = await GameLocation.findOne({
             where: {
-                id: gamelocation.id
+                id: req.params.locationId
             },
             include: {
                 model: Location,
@@ -183,13 +195,16 @@ class GameLocationController extends Controller {
 
         // Return updated game location
         return ResponseBuilder.build(res, 200, gameLocation);
-
     }
 
     async patch(req, res, next)
     {
-        // const error = this.validatePatch(req.body);
-        // if (error) return this.error(next, 400, 'Incomplete data');
+        if (!req.params.gameId || !req.params.locationId)
+            return this.error(next, 400, 'Incomplete data');
+
+        // Validate data
+        const error = this.validatePatch(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
 
         // Fetch game Location
         const gameLocation = await GameLocation.findOne({
@@ -206,13 +221,16 @@ class GameLocationController extends Controller {
         });
         if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
 
+        // Check if caller has permission to access resource
+        if (req.user.id != gameLocation.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+      
         // Fetch Location
         const location = await Location.findOne({
             where: {
                 id: gameLocation.id
             }
         })
-
 
         // Update specified fields on game location
         if (req.body.name != undefined) gameLocation.name = req.body.name
@@ -230,9 +248,7 @@ class GameLocationController extends Controller {
 
     async delete(req, res, next) {
         if (!req.params.gameId || !req.params.locationId)
-        {
             return this.error(next, 400, 'Incomplete data');
-        }
 
         // Fetch game Location
         const gameLocation = await GameLocation.findOne({
@@ -249,11 +265,45 @@ class GameLocationController extends Controller {
         });
         if (!gameLocation) return this.error(next, 404, 'The specified Game Location could not be found', 'gameLocation_not_found');
 
+        // Check if caller has permission to access resource
+        if (req.user.id != gameLocation.game.userId && !req.user.isAdmin)
+            return this.error(next, 403, 'Unauthorized');
+
         // Delete Game Location
         await gameLocation.destroy();
 
         // return deleted Game Location
         return ResponseBuilder.build(res, 200, gameLocation);
+    }
+
+    validateCreate(data) {
+        const locationSchema = Joi.object().keys({
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
+        });
+
+        const schema = Joi.object({
+            name: Joi.string().required(),
+            type: Joi.number().valid(...GameLocationTypes.values()).required(),
+            location: locationSchema.required()
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validatePatch(data) {
+        const locationSchema = Joi.object().keys({
+            latitude: Joi.number(),
+            longitude: Joi.number()
+        });
+
+        const schema = Joi.object({
+            name: Joi.string(),
+            type: Joi.number().valid(...GameLocationTypes.values()),
+            location: locationSchema
+        });
+
+        return schema.validate(data).error;
     }
 }
 
