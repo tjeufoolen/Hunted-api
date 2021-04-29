@@ -20,7 +20,7 @@ class GameLocationController extends Controller {
         this.delete = this.delete.bind(this);
     }
     async get(req,res,next){
-        let gameLocation = [];
+        let gameLocations = [];
         let filter = {
             where: {gameId: req.params.gameId},
             include: {
@@ -34,7 +34,7 @@ class GameLocationController extends Controller {
         gameLocations = await GameLocation.findAll(filter);
 
         // return gameLocation
-        return ResponseBuilder.build(res, 200, gameLocation);
+        return ResponseBuilder.build(res, 200, gameLocations);
     }
 
     async getById(req, res, next) {
