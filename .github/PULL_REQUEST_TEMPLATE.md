@@ -14,7 +14,7 @@ the requirements below.
 - [ ] Documentation is changed or added
 - [ ] Commit messages are clear and self explanatory
 - [ ] All code coresponds to the coding guidelines
-- [ ] Trello has been updated
+- [ ] Taiga has been updated
 
 ## Related Task
 <!--- This project only accepts pull requests related to open tasks -->
