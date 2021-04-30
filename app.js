@@ -25,11 +25,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-// ToDo: for testing
-app.get("/", (req, res, next) => {
-	res.sendFile(__dirname + "/test.html")
-})
-
 // Define routes
 app.use('/', require('./routes/api'));
 
