@@ -6,7 +6,6 @@ const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
-const moment = require('moment');
 const io = require('../utils/socket')
 
 class GameController extends Controller {
@@ -19,7 +18,7 @@ class GameController extends Controller {
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
-        this.startGame = this.startGame.bind(this);
+        this.startCronjob = this.startCronjob.bind(this);
     }
 
     async join(req, res, next) {
@@ -35,7 +34,7 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "minutes"],
+                attributes: ["id", "startAt", "isStarted", "minutes"],
                 include: [{
                     model: GameLocation,
                     as: "gameLocations",
@@ -108,57 +107,6 @@ class GameController extends Controller {
         ResponseBuilder.build(res, 200, fetchedGame);
     }
 
-    async startGame(req, res, next) {
-        // Handle top level route /user/:userId
-        if (req.params.userId) {
-            // Check if authenticated user has permission to create game under specified userId
-            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
-                return this.error(next, 403, 'Unauthorized');
-            }
-        }
-
-        let game = [];
-        let filter = {
-            where: {
-                id: req.params.gameId,
-            }
-        };
-
-        // Fetch game
-        game = await Game.findOne(filter); 
-        
-        if(game == null){
-            return this.error(next, 404, 'Item not found');
-        }
-
-        if(CronManager.running(game.id)) {
-            return this.error(next, 409, 'Process already running');
-        }
-
-        // TODO: interval hardcoded
-        CronManager.add(game.id, 1, async () => {
-            const locations = await Game.findOne({
-                where: {
-                    id: game.id
-                },
-                attributes: ["id"],
-                include: [{
-                    model: Player, as: "players",
-                    attributes: ["id", "playerRole"],
-                    include: [{
-                        model: Location,
-                        as: "location",
-                        attributes: ["latitude", "longitude"],
-                    }]
-                }]
-            });
-            io.to(game.id).emit("locations", locations)
-        }, game.endAt)
-
-        ResponseBuilder.build(res, 200, "started");
-    }
-
-
     async get(req, res, next) {
         let game = [];
         let filter = {
@@ -230,6 +178,13 @@ class GameController extends Controller {
         // Update game settings
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
+        game.isStarted = req.body.isStarted;
+
+        // Start socket if it wasn't already running when the game started
+        if (game.isStarted && !CronManager.running(game.id)) {
+            await this.startCronjob(game, next);
+            return ResponseBuilder.build(res, 200, "started");
+        }
 
         // Save updated game
         const updatedGame = await game.save();
@@ -285,6 +240,7 @@ class GameController extends Controller {
     validateUpdate(data) {
         const schema = Joi.object({
             startAt: Joi.date().required(),
+            isStarted: Joi.boolean().required(),
             minutes: Joi.number().min(1).required()
         });
 
@@ -304,6 +260,28 @@ class GameController extends Controller {
             playerRole: role, // TODO: Implement actual playerRole when roles are available.
             outOfTheGame: false
         });
+    }
+
+    async startCronjob(game) {
+        // TODO: interval hardcoded
+        CronManager.add(game.id, 1, async () => {
+            const locations = await Game.findOne({
+                where: {
+                    id: game.id
+                },
+                attributes: ["id"],
+                include: [{
+                    model: Player, as: "players",
+                    attributes: ["id", "playerRole"],
+                    include: [{
+                        model: Location,
+                        as: "location",
+                        attributes: ["latitude", "longitude"],
+                    }]
+                }]
+            });
+            io.to(game.id).emit("locations", locations)
+        }, game.endAt)
     }
 }
 
