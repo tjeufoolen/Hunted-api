@@ -34,6 +34,18 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('now')
       },
+      gameAreaLatitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+      },
+      gameAreaLongitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+      },
+      gameAreaRadius: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+      },
     },
       {
         updatedAt: false

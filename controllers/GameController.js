@@ -78,6 +78,9 @@ class GameController extends Controller {
             startAt: req.body.startAt,
             minutes: req.body.minutes,
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
+            gameAreaLatitude: req.body.gameAreaLatitude,
+            gameAreaLongitude: req.body.gameAreaLongitude,
+            gameAreaRadius: req.body.gameAreaRadius 
         });
 
         // Create players
@@ -276,7 +279,10 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
-            players: playersSchema.required()
+            players: playersSchema.required(),
+            gameAreaLatitude: Joi.number().required(),
+            gameAreaLongitude: Joi.number().required(),
+            gameAreaRadius: Joi.number().required()
         });
 
         return schema.validate(data).error;

@@ -64,7 +64,19 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.DATE,
 			allowNull: false,
 			default: Date.now()
-		}
+		},
+		gameAreaLatitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaLongitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaRadius: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
 	}, {
 		sequelize,
 		modelName: 'Game',
