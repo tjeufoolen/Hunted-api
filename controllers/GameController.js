@@ -142,15 +142,27 @@ class GameController extends Controller {
                     id: game.id
                 },
                 attributes: ["id"],
-                include: [{
-                    model: Player, as: "players",
+                include: [
+                {
+                    model: Player, 
+                    as: "players",
                     attributes: ["id", "playerRole"],
                     include: [{
                         model: Location,
                         as: "location",
                         attributes: ["latitude", "longitude"],
                     }]
-                }]
+                },
+                {
+                    model: GameLocation, 
+                    as: "gameLocations",
+                    attributes: ["id", "type", "name"],
+                    include: [{
+                        model: Location,
+                        as: "location",
+                        attributes: ["latitude", "longitude"],
+                    }]
+                }],
             });
             io.to(game.id).emit("locations", locations)
         }, game.endAt)
