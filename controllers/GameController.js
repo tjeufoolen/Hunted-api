@@ -233,6 +233,9 @@ class GameController extends Controller {
         // Update game settings
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
+        game.gameAreaLatitude = req.body.gameAreaLatitude;
+        game.gameAreaLongitude = req.body.gameAreaLongitude;
+        game.gameAreaRadius = req.body.gameAreaRadius;
 
         // Save updated game
         const updatedGame = await game.save();
@@ -291,7 +294,10 @@ class GameController extends Controller {
     validateUpdate(data) {
         const schema = Joi.object({
             startAt: Joi.date().required(),
-            minutes: Joi.number().min(1).required()
+            minutes: Joi.number().min(1).required(),
+            gameAreaLatitude: Joi.number().required(),
+            gameAreaLongitude: Joi.number().required(),
+            gameAreaRadius: Joi.number().required()
         });
 
         return schema.validate(data).error;
