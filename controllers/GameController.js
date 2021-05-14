@@ -181,7 +181,7 @@ class GameController extends Controller {
                 sendableLocations.push({"id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location})
             }
 
-            io.to("cops_" + game.id).emit("locations", sendableLocations)
+            io.to("police_" + game.id).emit("locations", sendableLocations)
         }, game.endAt)
 
         ResponseBuilder.build(res, 200, "started");
@@ -191,7 +191,7 @@ class GameController extends Controller {
         if(type == "gameLocation"){
             return id;
         }
-        
+
         // +2 for the amount of gameLocations there are for convrinting into single list
         return id+2;
     }
