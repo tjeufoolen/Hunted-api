@@ -16,7 +16,7 @@ class CronManager{
     add(name, interval, callback, endDateTime){
         this._jobs[name] = {
             name: name,
-            cron: new cron(`*/${interval} * * * *`, () => {
+            cron: new cron(`*/10 * * * * *`, () => {
                 if(moment() > endDateTime){
                     this.stop(name);
                     return;

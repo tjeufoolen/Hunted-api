@@ -8,6 +8,7 @@ const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
 const moment = require('moment');
 const io = require('../utils/socket')
+const { Op } = require("sequelize");
 
 class GameController extends Controller {
     constructor() {
@@ -168,9 +169,8 @@ class GameController extends Controller {
                     }]
                 }],
             });
-    
             let sendableLocations = [];
-    
+
             for(const gameLocation of locations.gameLocations){
                 sendableLocations.push({"id": gameLocation.id, "type": this.convertId(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location})
             }
@@ -178,8 +178,11 @@ class GameController extends Controller {
             io.to("thiefs_" + game.id).emit("locations", sendableLocations)
 
             for(const player of locations.players){
-                sendableLocations.push({"id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location})
+                if(player.location != null){
+                    sendableLocations.push({"id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location})
+                }
             }
+            console.log(sendableLocations)
 
             io.to("police_" + game.id).emit("locations", sendableLocations)
         }, game.endAt)

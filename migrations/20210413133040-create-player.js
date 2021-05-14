@@ -31,7 +31,7 @@ module.exports = {
 			outOfTheGame: {
 				type: Sequelize.BOOLEAN,
 				allowNull: false,
-				default: false
+				defaultValue: false
 			},
 			locationId: {
 				type: Sequelize.INTEGER,
