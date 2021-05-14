@@ -36,7 +36,8 @@ class GameController extends Controller {
             include: [{
                 model: Game, as: "game",
                 attributes: ["id", "startAt", "minutes"],
-                include: [{
+                include: [
+                    {
                     model: GameLocation,
                     as: "gameLocations",
                     where: {
@@ -157,6 +158,9 @@ class GameController extends Controller {
                     model: GameLocation, 
                     as: "gameLocations",
                     attributes: ["id", "type", "name"],
+                    where:{
+                        isPickedUp: false
+                    },
                     include: [{
                         model: Location,
                         as: "location",
@@ -164,10 +168,32 @@ class GameController extends Controller {
                     }]
                 }],
             });
-            io.to(game.id).emit("locations", locations)
+    
+            let sendableLocations = [];
+    
+            for(const gameLocation of locations.gameLocations){
+                sendableLocations.push({"id": gameLocation.id, "type": this.convertId(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location})
+            }
+
+            io.to("thiefs_" + game.id).emit("locations", sendableLocations)
+
+            for(const player of locations.players){
+                sendableLocations.push({"id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location})
+            }
+
+            io.to("cops_" + game.id).emit("locations", sendableLocations)
         }, game.endAt)
 
         ResponseBuilder.build(res, 200, "started");
+    }
+
+    convertId(id, type){
+        if(type == "gameLocation"){
+            return id;
+        }
+        
+        // +2 for the amount of gameLocations there are for convrinting into single list
+        return id+2;
     }
 
 
