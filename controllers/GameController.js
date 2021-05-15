@@ -175,19 +175,27 @@ class GameController extends Controller {
         });
         if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found')
 
+        // keep copy of old data to compare against
+        const oldGameStarted = game.isStarted;
+
         // Update game settings
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
         game.isStarted = req.body.isStarted;
 
-        // Start socket if it wasn't already running when the game started
+        // Save updated game
+        const updatedGame = await game.save();
+
+        // Notify socket game is starting if isStarted changed this request
+        if (oldGameStarted != game.isStarted) {
+            io.to(game.id).emit("gameStarted");
+        }
+
+        // Start cronjob if it wasn't already running when the game started
         if (game.isStarted && !CronManager.running(game.id)) {
             await this.startCronjob(game, next);
             return ResponseBuilder.build(res, 200, "started");
         }
-
-        // Save updated game
-        const updatedGame = await game.save();
 
         // Return updated game
         ResponseBuilder.build(res, 200, updatedGame);
@@ -280,7 +288,7 @@ class GameController extends Controller {
                     }]
                 }]
             });
-            io.to(game.id).emit("locations", locations)
+            io.to(game.id).emit("locations", locations);
         }, game.endAt)
     }
 }
