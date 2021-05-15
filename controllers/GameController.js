@@ -187,14 +187,13 @@ class GameController extends Controller {
         const updatedGame = await game.save();
 
         // Notify socket game is starting if isStarted changed this request
-        if (oldGameStarted != game.isStarted) {
-            io.to(game.id).emit("gameStarted");
+        if (oldGameStarted != updatedGame.isStarted) {
+            io.to(updatedGame.id).emit("gameStarted");
         }
 
         // Start cronjob if it wasn't already running when the game started
-        if (game.isStarted && !CronManager.running(game.id)) {
-            await this.startCronjob(game, next);
-            return ResponseBuilder.build(res, 200, "started");
+        if (updatedGame.isStarted && !CronManager.running(updatedGame.id)) {
+            await this.startCronjob(updatedGame, next);
         }
 
         // Return updated game
