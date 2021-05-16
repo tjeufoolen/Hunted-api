@@ -37,7 +37,7 @@ module.exports = {
       interval: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        default: 1
+        defaultValue: 1
       }
     },
       {
