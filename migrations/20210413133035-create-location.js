@@ -13,10 +13,15 @@ module.exports = {
       },
       longitude: {
         type: Sequelize.DOUBLE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('NOW')
       }
     },
     {
-      createdAt: false
+      createdAt: false,
     });
   },
   down: async (queryInterface, Sequelize) => {

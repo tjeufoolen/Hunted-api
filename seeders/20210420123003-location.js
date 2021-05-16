@@ -7,11 +7,9 @@ module.exports = {
       return queryInterface.bulkInsert('Locations', [{
         latitude: 51.888529,
         longitude: 5.605207,
-        updatedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss')
       }, {
         latitude: 51.888321,
         longitude: 5.605965,
-        updatedAt: moment.utc().format('YYYY-MM-DD HH:mm:ss')
       }],
       )
   },
