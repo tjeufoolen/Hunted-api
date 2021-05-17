@@ -307,11 +307,11 @@ class GameController extends Controller {
                         }]
                     }],
             });
-            sendLocationsToSocket (locations)
+            this.sendLocationsToSocket(locations, game)
         }, game.endAt)
     }
 
-    sendLocationsToSocket(locations){
+    sendLocationsToSocket(locations, game){
         let sendableLocations = [];
 
         for (const gameLocation of locations.gameLocations) {
