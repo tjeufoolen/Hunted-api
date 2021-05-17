@@ -307,29 +307,29 @@ class GameController extends Controller {
                         }]
                     }],
             });
-            sendToSocket(locations)
+            sendLocationsToSocket (locations)
         }, game.endAt)
     }
 
-    sendToSocket(locations){
+    sendLocationsToSocket(locations){
         let sendableLocations = [];
 
         for (const gameLocation of locations.gameLocations) {
-            sendableLocations.push({ "id": gameLocation.id, "type": this.convertId(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+            sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
         }
 
         io.to("thiefs_" + game.id).emit("locations", sendableLocations)
 
         for (const player of locations.players) {
             if (player.location != null && !player.outOfTheGame) {
-                sendableLocations.push({ "id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location })
+                sendableLocations.push({ "id": player.id, "type": this.convertTypeForApp(player.playerRole, "player"), "name": "player", "location": player.location })
             }
         }
 
         io.to("police_" + game.id).emit("locations", sendableLocations)
     }
 
-    convertId(id, type) {
+    convertTypeForApp(id, type) {
         if (type == "gameLocation") {
             return id;
         }
