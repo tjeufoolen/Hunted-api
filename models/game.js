@@ -46,13 +46,18 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
+		isStarted: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
+		},
 		minutes: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
 		endAt: {
 			type: DataTypes.VIRTUAL,
-			get () {
+			get() {
 				return moment(this.get("startAt")).add(this.get("minutes"), "m")
 			}
 		},

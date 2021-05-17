@@ -21,6 +21,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
+      isStarted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+        allowNull: false
+      },
       minutes: {
         type: Sequelize.INTEGER,
         allowNull: false
