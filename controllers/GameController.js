@@ -77,6 +77,7 @@ class GameController extends Controller {
             startAt: req.body.startAt,
             minutes: req.body.minutes,
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
+            interval: req.body.interval
         });
 
         // Create players
@@ -182,6 +183,7 @@ class GameController extends Controller {
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
         game.isStarted = req.body.isStarted;
+        game.interval = req.body.interval;
 
         // Save updated game
         const updatedGame = await game.save();
@@ -238,6 +240,7 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
+            interval: Joi.number().min(1).max(15).required(),
             players: playersSchema.required()
         });
 
@@ -248,7 +251,8 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             isStarted: Joi.boolean().required(),
-            minutes: Joi.number().min(1).required()
+            minutes: Joi.number().min(1).required(),
+            interval: Joi.number().min(1).max(15).required()
         });
 
         return schema.validate(data).error;
