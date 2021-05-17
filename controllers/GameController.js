@@ -78,6 +78,7 @@ class GameController extends Controller {
             startAt: req.body.startAt,
             minutes: req.body.minutes,
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
+            interval: req.body.interval
         });
 
         // Create players
@@ -183,6 +184,7 @@ class GameController extends Controller {
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
         game.isStarted = req.body.isStarted;
+        game.interval = req.body.interval;
 
         // Save updated game
         const updatedGame = await game.save();
@@ -239,6 +241,7 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
+            interval: Joi.number().min(1).max(15).required(),
             players: playersSchema.required()
         });
 
@@ -249,7 +252,8 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             isStarted: Joi.boolean().required(),
-            minutes: Joi.number().min(1).required()
+            minutes: Joi.number().min(1).required(),
+            interval: Joi.number().min(1).max(15).required()
         });
 
         return schema.validate(data).error;
@@ -271,63 +275,63 @@ class GameController extends Controller {
     }
 
     async startCronjob(game) {
-       // TODO: interval hardcoded
-       CronManager.add(game.id, 1, async () => {
-        const locations = await Game.findOne({
-            where: {
-                id: game.id
-            },
-            attributes: ["id"],
-            include: [
-            {
-                model: Player, 
-                as: "players",
-                attributes: ["id", "playerRole", "outOfTheGame"],
-                include: [{
-                    model: Location,
-                    as: "location",
-                    attributes: ["latitude", "longitude"],
-                }]
-            },
-            {
-                model: GameLocation, 
-                as: "gameLocations",
-                attributes: ["id", "type", "name"],
-                where:{
-                    isPickedUp: false
+        // TODO: interval hardcoded
+        CronManager.add(game.id, 1, async () => {
+            const locations = await Game.findOne({
+                where: {
+                    id: game.id
                 },
-                include: [{
-                    model: Location,
-                    as: "location",
-                    attributes: ["latitude", "longitude"],
-                }]
-            }],
-        });
-        let sendableLocations = [];
+                attributes: ["id"],
+                include: [
+                    {
+                        model: Player,
+                        as: "players",
+                        attributes: ["id", "playerRole", "outOfTheGame"],
+                        include: [{
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longitude"],
+                        }]
+                    },
+                    {
+                        model: GameLocation,
+                        as: "gameLocations",
+                        attributes: ["id", "type", "name"],
+                        where: {
+                            isPickedUp: false
+                        },
+                        include: [{
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longitude"],
+                        }]
+                    }],
+            });
+            let sendableLocations = [];
 
-        for(const gameLocation of locations.gameLocations){
-            sendableLocations.push({"id": gameLocation.id, "type": this.convertId(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location})
-        }
-
-        io.to("thiefs_" + game.id).emit("locations", sendableLocations)
-
-        for(const player of locations.players){
-            if(player.location != null && !player.outOfTheGame){
-                sendableLocations.push({"id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location})
+            for (const gameLocation of locations.gameLocations) {
+                sendableLocations.push({ "id": gameLocation.id, "type": this.convertId(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
             }
-        }
 
-        io.to("police_" + game.id).emit("locations", sendableLocations)
-    }, game.endAt)
+            io.to("thiefs_" + game.id).emit("locations", sendableLocations)
+
+            for (const player of locations.players) {
+                if (player.location != null && !player.outOfTheGame) {
+                    sendableLocations.push({ "id": player.id, "type": this.convertId(player.playerRole, "player"), "name": "player", "location": player.location })
+                }
+            }
+
+            io.to("police_" + game.id).emit("locations", sendableLocations)
+        }, game.endAt)
     }
 
-    convertId(id, type){
-        if(type == "gameLocation"){
+    convertId(id, type) {
+        if (type == "gameLocation") {
             return id;
         }
 
         // +2 for the amount of gameLocations there are for convrinting into single list
-        return id+2;
+        return id + 2;
     }
 }
 
