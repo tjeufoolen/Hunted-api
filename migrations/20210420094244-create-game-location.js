@@ -24,7 +24,7 @@ module.exports = {
       },
       isPickedUp: {
         type: Sequelize.BOOLEAN,
-        default: false,
+        defaultValue: false,
       }
     },
       {

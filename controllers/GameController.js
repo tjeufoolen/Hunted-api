@@ -7,6 +7,7 @@ const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
 const io = require('../utils/socket')
+const { Op } = require("sequelize");
 
 class GameController extends Controller {
     constructor() {
@@ -39,7 +40,7 @@ class GameController extends Controller {
                     model: GameLocation,
                     as: "gameLocations",
                     where: {
-                        isPickedUp: null
+                        isPickedUp: false
                     },
                     attributes: ["id", "name", "type"],
                     include: [
@@ -281,18 +282,60 @@ class GameController extends Controller {
                     id: game.id
                 },
                 attributes: ["id"],
-                include: [{
-                    model: Player, as: "players",
-                    attributes: ["id", "playerRole"],
-                    include: [{
-                        model: Location,
-                        as: "location",
-                        attributes: ["latitude", "longitude"],
-                    }]
-                }]
+                include: [
+                    {
+                        model: Player,
+                        as: "players",
+                        attributes: ["id", "playerRole", "outOfTheGame"],
+                        include: [{
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longitude"],
+                        }]
+                    },
+                    {
+                        model: GameLocation,
+                        as: "gameLocations",
+                        attributes: ["id", "type", "name"],
+                        where: {
+                            isPickedUp: false
+                        },
+                        include: [{
+                            model: Location,
+                            as: "location",
+                            attributes: ["latitude", "longitude"],
+                        }]
+                    }],
             });
-            io.to(game.id).emit("locations", locations);
+            this.sendLocationsToSocket(locations, game)
         }, game.endAt)
+    }
+
+    sendLocationsToSocket(locations, game){
+        let sendableLocations = [];
+
+        for (const gameLocation of locations.gameLocations) {
+            sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+        }
+
+        io.to("thiefs_" + game.id).emit("locations", sendableLocations)
+
+        for (const player of locations.players) {
+            if (player.location != null && !player.outOfTheGame) {
+                sendableLocations.push({ "id": player.id, "type": this.convertTypeForApp(player.playerRole, "player"), "name": "player", "location": player.location })
+            }
+        }
+
+        io.to("police_" + game.id).emit("locations", sendableLocations)
+    }
+
+    convertTypeForApp(id, type) {
+        if (type == "gameLocation") {
+            return id;
+        }
+
+        // +2 for the amount of gameLocations there are for convrinting into single list
+        return id + 2;
     }
 }
 

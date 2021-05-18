@@ -17,11 +17,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        default: Date.now()
+        defaultValue: Sequelize.fn('NOW')
       }
     },
     {
-      createdAt: false
+      createdAt: false,
     });
   },
   down: async (queryInterface, Sequelize) => {
