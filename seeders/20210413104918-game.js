@@ -11,7 +11,8 @@ module.exports = {
       layoutTemplateId: 0,
       gameAreaLatitude: 51.888529,
       gameAreaLongitude: 5.6,
-      gameAreaRadius: 1000
+      gameAreaRadius: 1000,
+      interval: 3
     }, {
       userId: 1,
       startAt: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
@@ -19,7 +20,8 @@ module.exports = {
       layoutTemplateId: 0,
       gameAreaLatitude: 51.888529,
       gameAreaLongitude: 5.6,
-      gameAreaRadius: 1000
+      gameAreaRadius: 1000,
+      interval: 2
     }],
     )
   },

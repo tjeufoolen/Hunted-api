@@ -6,7 +6,6 @@ const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
-const moment = require('moment');
 const io = require('../utils/socket')
 
 class GameController extends Controller {
@@ -19,7 +18,7 @@ class GameController extends Controller {
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
-        this.startGame = this.startGame.bind(this);
+        this.startCronjob = this.startCronjob.bind(this);
     }
 
     async join(req, res, next) {
@@ -35,7 +34,8 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius"],
+                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius"],
+
                 include: [{
                     model: GameLocation,
                     as: "gameLocations",
@@ -80,7 +80,8 @@ class GameController extends Controller {
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
             gameAreaLatitude: req.body.gameAreaLatitude,
             gameAreaLongitude: req.body.gameAreaLongitude,
-            gameAreaRadius: req.body.gameAreaRadius 
+            gameAreaRadius: req.body.gameAreaRadius, 
+            interval: req.body.interval
         });
 
         // Create players
@@ -110,57 +111,6 @@ class GameController extends Controller {
         // Return fetched game
         ResponseBuilder.build(res, 200, fetchedGame);
     }
-
-    async startGame(req, res, next) {
-        // Handle top level route /user/:userId
-        if (req.params.userId) {
-            // Check if authenticated user has permission to create game under specified userId
-            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
-                return this.error(next, 403, 'Unauthorized');
-            }
-        }
-
-        let game = [];
-        let filter = {
-            where: {
-                id: req.params.gameId,
-            }
-        };
-
-        // Fetch game
-        game = await Game.findOne(filter); 
-        
-        if(game == null){
-            return this.error(next, 404, 'Item not found');
-        }
-
-        if(CronManager.running(game.id)) {
-            return this.error(next, 409, 'Process already running');
-        }
-
-        // TODO: interval hardcoded
-        CronManager.add(game.id, 1, async () => {
-            const locations = await Game.findOne({
-                where: {
-                    id: game.id
-                },
-                attributes: ["id"],
-                include: [{
-                    model: Player, as: "players",
-                    attributes: ["id", "playerRole"],
-                    include: [{
-                        model: Location,
-                        as: "location",
-                        attributes: ["latitude", "longitude"],
-                    }]
-                }]
-            });
-            io.to(game.id).emit("locations", locations)
-        }, game.endAt)
-
-        ResponseBuilder.build(res, 200, "started");
-    }
-
 
     async get(req, res, next) {
         let game = [];
@@ -230,15 +180,30 @@ class GameController extends Controller {
         });
         if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found')
 
+        // keep copy of old data to compare against
+        const oldGameStarted = game.isStarted;
+
         // Update game settings
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
         game.gameAreaLatitude = req.body.gameAreaLatitude;
         game.gameAreaLongitude = req.body.gameAreaLongitude;
         game.gameAreaRadius = req.body.gameAreaRadius;
+        game.isStarted = req.body.isStarted;
+        game.interval = req.body.interval;
 
         // Save updated game
         const updatedGame = await game.save();
+
+        // Notify socket game is starting if isStarted changed this request
+        if (oldGameStarted != updatedGame.isStarted) {
+            io.to(updatedGame.id).emit("gameStarted");
+        }
+
+        // Start cronjob if it wasn't already running when the game started
+        if (updatedGame.isStarted && !CronManager.running(updatedGame.id)) {
+            await this.startCronjob(updatedGame, next);
+        }
 
         // Return updated game
         ResponseBuilder.build(res, 200, updatedGame);
@@ -286,6 +251,8 @@ class GameController extends Controller {
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
             gameAreaRadius: Joi.number().required()
+            interval: Joi.number().min(1).max(15).required(),
+            players: playersSchema.required()
         });
 
         return schema.validate(data).error;
@@ -297,7 +264,9 @@ class GameController extends Controller {
             minutes: Joi.number().min(1).required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            gameAreaRadius: Joi.number().required()
+            gameAreaRadius: Joi.number().required(),
+            isStarted: Joi.boolean().required(),
+            interval: Joi.number().min(1).max(15).required()
         });
 
         return schema.validate(data).error;
@@ -316,6 +285,28 @@ class GameController extends Controller {
             playerRole: role, // TODO: Implement actual playerRole when roles are available.
             outOfTheGame: false
         });
+    }
+
+    async startCronjob(game) {
+        // TODO: interval hardcoded
+        CronManager.add(game.id, 1, async () => {
+            const locations = await Game.findOne({
+                where: {
+                    id: game.id
+                },
+                attributes: ["id"],
+                include: [{
+                    model: Player, as: "players",
+                    attributes: ["id", "playerRole"],
+                    include: [{
+                        model: Location,
+                        as: "location",
+                        attributes: ["latitude", "longitude"],
+                    }]
+                }]
+            });
+            io.to(game.id).emit("locations", locations);
+        }, game.endAt)
     }
 }
 
