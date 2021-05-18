@@ -264,7 +264,7 @@ class GameController extends Controller {
             minutes: Joi.number().min(1).required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            gameAreaRadius: Joi.number().required(),
+            gameAreaRadius: Joi.number().max(100000).required(),
             isStarted: Joi.boolean().required(),
             interval: Joi.number().min(1).max(15).required()
         });
