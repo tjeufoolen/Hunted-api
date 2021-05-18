@@ -250,7 +250,7 @@ class GameController extends Controller {
             players: playersSchema.required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            gameAreaRadius: Joi.number().required()
+            gameAreaRadius: Joi.number().max(100000).required(),
             interval: Joi.number().min(1).max(15).required(),
             players: playersSchema.required()
         });
