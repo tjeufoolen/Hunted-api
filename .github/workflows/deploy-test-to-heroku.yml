@@ -1,0 +1,37 @@
+name: Deploy Test To Heroku
+
+on: 
+  push:
+    branches:
+      - test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "hunted-api"
+          heroku_email: "tjeu@foolen.me"
+          usedocker: true
+          docker_build_args: |
+            NODE_ENV
+            SECRET_KEY
+        env:
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          INVITE_CODE_KEY: ${{ secrets.INVITE_CODE_KEY }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: GitHub Action for npx
+        uses: mikeal/npx@1.0.0
+      - run: npx sequelize-cli db:migrate --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: npx sequelize-cli db:seed:all --url="${{ secrets.DB_CONNECTION_STRING }}"
