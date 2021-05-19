@@ -41,5 +41,6 @@ jobs:
       # Drop database, remigrate and seed data
       - run: sudo npm install -g --save-dev sequelize-cli
       - run: sequelize-cli db:drop --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sequelize-cli db:create --url="${{ secrets.DB_CONNECTION_STRING }}"
       - run: sequelize-cli db:migrate --url="${{ secrets.DB_CONNECTION_STRING }}"
       - run: sequelize-cli db:seed:all --url="${{ secrets.DB_CONNECTION_STRING }}"
