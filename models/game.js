@@ -70,6 +70,18 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			default: Date.now()
 		},
+		gameAreaLatitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaLongitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaRadius: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
 		interval: {
 			type: DataTypes.INTEGER,
 			allowNull: false,

@@ -35,7 +35,8 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "isStarted", "minutes"],
+                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius"],
+
                 include: [{
                     model: GameLocation,
                     as: "gameLocations",
@@ -78,6 +79,9 @@ class GameController extends Controller {
             startAt: req.body.startAt,
             minutes: req.body.minutes,
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
+            gameAreaLatitude: req.body.gameAreaLatitude,
+            gameAreaLongitude: req.body.gameAreaLongitude,
+            gameAreaRadius: req.body.gameAreaRadius, 
             interval: req.body.interval
         });
 
@@ -183,6 +187,9 @@ class GameController extends Controller {
         // Update game settings
         game.startAt = req.body.startAt;
         game.minutes = req.body.minutes;
+        game.gameAreaLatitude = req.body.gameAreaLatitude;
+        game.gameAreaLongitude = req.body.gameAreaLongitude;
+        game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
 
@@ -241,6 +248,10 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
+            players: playersSchema.required(),
+            gameAreaLatitude: Joi.number().required(),
+            gameAreaLongitude: Joi.number().required(),
+            gameAreaRadius: Joi.number().max(100000).required(),
             interval: Joi.number().min(1).max(15).required(),
             players: playersSchema.required()
         });
@@ -251,8 +262,11 @@ class GameController extends Controller {
     validateUpdate(data) {
         const schema = Joi.object({
             startAt: Joi.date().required(),
-            isStarted: Joi.boolean().required(),
             minutes: Joi.number().min(1).required(),
+            gameAreaLatitude: Joi.number().required(),
+            gameAreaLongitude: Joi.number().required(),
+            gameAreaRadius: Joi.number().max(100000).required(),
+            isStarted: Joi.boolean().required(),
             interval: Joi.number().min(1).max(15).required()
         });
 
