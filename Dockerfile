@@ -2,6 +2,6 @@ FROM node:latest
 
 COPY . /api
 WORKDIR /api
-RUN npm install --also=dev
+RUN npm install
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
