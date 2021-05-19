@@ -9,19 +9,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       latitude: {
-        type: Sequelize.GEOMETRY
+        type: Sequelize.DOUBLE
       },
-      longtitude: {
-        type: Sequelize.GEOMETRY
+      longitude: {
+        type: Sequelize.DOUBLE
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        default: Date.now()
+        defaultValue: Sequelize.fn('NOW')
       }
     },
     {
-      createdAt: false
+      createdAt: false,
     });
   },
   down: async (queryInterface, Sequelize) => {

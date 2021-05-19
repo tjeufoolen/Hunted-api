@@ -14,6 +14,8 @@ require("./models/index");
 require('./middleware/AuthMiddleware');
 require('./middleware/AdminMiddleware');
 
+require("./sockets")
+
 // Initialize express
 const app = express();
 

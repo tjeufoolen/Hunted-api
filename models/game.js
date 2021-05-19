@@ -2,6 +2,9 @@
 const {
 	Model
 } = require('sequelize');
+
+const moment = require('moment');
+
 module.exports = (sequelize, DataTypes) => {
 	class Game extends Model {
 		/**
@@ -19,6 +22,9 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'players',
 				onDelete: 'cascade'
 			});
+			Game.hasMany(models.GameLocation, {
+				as: 'gameLocations',
+			});
 		}
 	};
 	Game.init({
@@ -34,15 +40,26 @@ module.exports = (sequelize, DataTypes) => {
 				model: "Users",
 				key: 'id'
 			},
-			allowNull: false,
+			allowNull: false
 		},
 		startAt: {
 			type: DataTypes.DATE,
+			allowNull: false,
+		},
+		isStarted: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
 			allowNull: false
 		},
 		minutes: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+		},
+		endAt: {
+			type: DataTypes.VIRTUAL,
+			get() {
+				return moment(this.get("startAt")).add(this.get("minutes"), "m")
+			}
 		},
 		layoutTemplateId: {
 			type: DataTypes.INTEGER,
@@ -52,6 +69,23 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.DATE,
 			allowNull: false,
 			default: Date.now()
+		},
+		gameAreaLatitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaLongitude: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		gameAreaRadius: {
+			type: DataTypes.DOUBLE,
+			allowNull: false,
+		},
+		interval: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
 		}
 	}, {
 		sequelize,

@@ -1,6 +1,10 @@
 const Router = require('express').Router({ mergeParams: true });
 const passport = require('passport');
-const GameController = require("../controllers/GameController");
+const GameController = require("../../controllers/GameController");
+
+Router
+    .use("/:gameId/player", require('./player'))
+    .use("/:gameId/location", require('./location'));
 
 Router
     .route("/:gameId")

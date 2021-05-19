@@ -16,6 +16,7 @@ module.exports = {
 					key: 'id'
 				},
 				allowNull: false,
+				primaryKey: true,
 				onDelete: 'cascade'
 			},
 			code: {
@@ -30,7 +31,7 @@ module.exports = {
 			outOfTheGame: {
 				type: Sequelize.BOOLEAN,
 				allowNull: false,
-				default: false
+				defaultValue: false
 			},
 			locationId: {
 				type: Sequelize.INTEGER,
@@ -45,7 +46,7 @@ module.exports = {
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,
-				default: Date.now()
+				defaultValue: Sequelize.fn('now')
 			}
 		}, {
 			updatedAt: false
