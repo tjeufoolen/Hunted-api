@@ -31,7 +31,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: GitHub Action for npx
-        uses: mikeal/npx@1.0.0
-      - run: npx sequelize-cli db:migrate --url="${{ secrets.DB_CONNECTION_STRING }}"
-      - run: npx sequelize-cli db:seed:all --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sudo npm install -g --save-dev sequelize-cli
+      - run: sequelize-cli db:migrate --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sequelize-cli db:seed:all --url="${{ secrets.DB_CONNECTION_STRING }}"
