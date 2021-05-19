@@ -11,8 +11,8 @@ REST api build for the Hunted project using express.
 1. Be sure to check that Dockerfile runs npm start instead of npm run watch and that we are only installing NON development node modules.
 2. Run `heroku container:push web --app="hunted-api"` to build the api.
 3. Run `heroku container:release web --app="hunted-api"` to release the api.
-4. Execute `npx sequelize-cli db:migrate --url="<insert-mongo-db-url>"`.
-5. [Optional] Execute `npx sequelize-cli db:seed:all --url="<insert-mongo-db-url>"` to seed the database.
+4. Execute `npx sequelize-cli db:migrate --url="<DB_CONNECTION_STRING>"`.
+5. [Optional] Execute `npx sequelize-cli db:seed:all --url="<DB_CONNECTION_STRING>"` to seed the database.
 6. Visit https://hunted-api.herokuapp.com/ and check it out live!
 
 ## Authors
