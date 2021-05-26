@@ -10,4 +10,9 @@ io.on('connection', socket => {
     socket.on("send_location", location => {
         PlayerController.updateLocation(location)
 	});
+
+	socket.on("pick_up_treasure", message => {
+		console.log(message);
+		socket.emit('pick_up_treasure_attempt', 'reeeeee');
+	});
 });
