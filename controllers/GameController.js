@@ -258,19 +258,22 @@ class GameController extends Controller {
             }]
         });
 
+        let message = {};
+
         if(treasure == null){
-            socket.emit('pick_up_treasure_attempt', "De schat is al gepakt! zoek snel verder");
-            return;
+            message.title = "Te laat!";
+            message.body = "De schat is al gepakt door iemand anders!"
+        }else if(this.calculateDistance(player, treasure) > 5){
+            message.title = "Te ver weg!";
+            message.body = "Kom dichterbij de schat en probeer het opnieuw!"
+        }else{
+            treasure.isPickedUp = true;
+            await treasure.save();
+            message.title = "Succes!";
+            message.body = "Je hebt de schat gestolen!"
         }
 
-        if(this.calculateDistance(player, treasure) > 5){
-            socket.emit('pick_up_treasure_attempt', "Je bent te verweg van de schat, probeer dichterbij te komen!");
-            return;
-        }
-
-        treasure.isPickedUp = true;
-        await treasure.save();
-        socket.emit('pick_up_treasure_attempt', "Gelukt! zoek snel verder naar nog een schat");
+        socket.emit('pick_up_treasure_result', JSON.stringify(message));
     }
 
     calculateDistance(player, treasure){

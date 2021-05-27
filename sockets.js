@@ -12,15 +12,11 @@ io.on('connection', socket => {
 		socket.leaveAll();
 	})
 
-	socket.on("pick_up_treasure", message => {
-		GameController.pickUpTreasure(message, socket);
-	});
-
     socket.on("send_location", location => {
         PlayerController.updateLocation(location)
 	});
 
-	socket.on("pick_up_treasure", message => {
-		GameController.pickUpTreasure(message, socket);
+	socket.on("pick_up_treasure", data => {
+		GameController.pickUpTreasure(data, socket);
 	});
 });
