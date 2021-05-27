@@ -1,5 +1,6 @@
 const io = require("./utils/socket")
-const PlayerController = require("./controllers/PlayerController")
+const PlayerController = require("./controllers/PlayerController");
+const GameController = require("./controllers/GameController");
 
 
 io.on('connection', socket => {
@@ -7,12 +8,19 @@ io.on('connection', socket => {
 		socket.join(room);
 	});
 
+	socket.on("leave_rooms", () => {
+		socket.leaveAll();
+	})
+
+	socket.on("pick_up_treasure", message => {
+		GameController.pickUpTreasure(message, socket);
+	});
+
     socket.on("send_location", location => {
         PlayerController.updateLocation(location)
 	});
 
 	socket.on("pick_up_treasure", message => {
-		console.log(message);
-		socket.emit('pick_up_treasure_attempt', 'reeeeee');
+		GameController.pickUpTreasure(message, socket);
 	});
 });

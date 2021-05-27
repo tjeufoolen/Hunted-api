@@ -8,6 +8,7 @@ const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
 const io = require('../utils/socket')
 const { Op } = require("sequelize");
+const geolib = require('geolib');
 
 class GameController extends Controller {
     constructor() {
@@ -231,6 +232,54 @@ class GameController extends Controller {
         ResponseBuilder.build(res, 200, { message: "Success!" });
     }
 
+    async pickUpTreasure(data, socket){
+        let { playerId, treasureId } = data;
+
+        const treasure = await GameLocation.findOne({
+            where: {
+                id: treasureId,
+                isPickedUp: false
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        const player = await Player.findOne({
+            where: {
+                id: playerId
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        if(treasure == null){
+            socket.emit('pick_up_treasure_attempt', "De schat is al gepakt! zoek snel verder");
+            return;
+        }
+
+        if(this.calculateDistance(player, treasure) > 5){
+            socket.emit('pick_up_treasure_attempt', "Je bent te verweg van de schat, probeer dichterbij te komen!");
+            return;
+        }
+
+        treasure.isPickedUp = true;
+        await treasure.save();
+        socket.emit('pick_up_treasure_attempt', "Gelukt! zoek snel verder naar nog een schat");
+    }
+
+    calculateDistance(player, treasure){
+        return geolib.getDistance(
+            { latitude: player.location.latitude, longitude: player.location.longitude},
+            { latitude: treasure.location.latitude, longitude: treasure.location.longitude }
+        );
+    }
+
     validateJoin(data) {
         const schema = Joi.object({
             code: Joi.string().required(),
@@ -328,7 +377,9 @@ class GameController extends Controller {
         let sendableLocations = [];
 
         for (const gameLocation of locations.gameLocations) {
-            sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+            if(!gameLocation.isPickedUp){
+                sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+            }
         }
 
         io.to("thiefs_" + game.id).emit("locations", sendableLocations)
