@@ -1,5 +1,5 @@
 const { Controller } = require('./Controller');
-const BCrypt = require('bcryptjs');
+const bs58 = require('bs58');
 
 class InviteTokenController extends Controller {
     /**
@@ -13,9 +13,8 @@ class InviteTokenController extends Controller {
         const unhashedToken = `${gameId}-${playerId}-${process.env.INVITE_CODE_KEY}`;
 
         // Hash token
-        const salt = await BCrypt.genSalt(10);
-        const hashedToken = await BCrypt.hash(unhashedToken, salt);
-
+        const bytes = Buffer.from(unhashedToken);
+        const hashedToken = bs58.encode(bytes);
         // Split token in parts
         const parts = hashedToken.match(/.{1,5}/g);
         const token = parts.join('-');
