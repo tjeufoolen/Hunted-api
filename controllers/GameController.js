@@ -8,6 +8,7 @@ const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager')
 const io = require('../utils/socket')
 const { Op } = require("sequelize");
+const geolib = require('geolib');
 
 class GameController extends Controller {
     constructor() {
@@ -231,6 +232,57 @@ class GameController extends Controller {
         ResponseBuilder.build(res, 200, { message: "Success!" });
     }
 
+    async pickUpTreasure(data, socket){
+        let { playerId, treasureId } = data;
+
+        const treasure = await GameLocation.findOne({
+            where: {
+                id: treasureId,
+                isPickedUp: false
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        const player = await Player.findOne({
+            where: {
+                id: playerId
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        let message = {};
+
+        if(treasure == null){
+            message.title = "Te laat!";
+            message.body = "De schat is al gepakt door iemand anders!"
+        }else if(this.calculateDistance(player, treasure) > 5){
+            message.title = "Te ver weg!";
+            message.body = "Kom dichterbij de schat en probeer het opnieuw!"
+        }else{
+            treasure.isPickedUp = true;
+            await treasure.save();
+            message.title = "Succes!";
+            message.body = "Je hebt de schat gestolen!"
+        }
+
+        socket.emit('pick_up_treasure_result', JSON.stringify(message));
+    }
+
+    calculateDistance(player, treasure){
+        return geolib.getDistance(
+            { latitude: player.location.latitude, longitude: player.location.longitude},
+            { latitude: treasure.location.latitude, longitude: treasure.location.longitude }
+        );
+    }
+
     validateJoin(data) {
         const schema = Joi.object({
             code: Joi.string().required(),
@@ -253,7 +305,6 @@ class GameController extends Controller {
             gameAreaLongitude: Joi.number().required(),
             gameAreaRadius: Joi.number().max(100000).required(),
             interval: Joi.number().min(1).max(15).required(),
-            players: playersSchema.required()
         });
 
         return schema.validate(data).error;
@@ -329,7 +380,9 @@ class GameController extends Controller {
         let sendableLocations = [];
 
         for (const gameLocation of locations.gameLocations) {
-            sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+            if(!gameLocation.isPickedUp){
+                sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
+            }
         }
 
         io.to("thiefs_" + game.id).emit("locations", sendableLocations)
