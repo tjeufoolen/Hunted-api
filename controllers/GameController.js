@@ -82,7 +82,7 @@ class GameController extends Controller {
             layoutTemplateId: 0, // TODO: Implement actual templateId when templates are available.
             gameAreaLatitude: req.body.gameAreaLatitude,
             gameAreaLongitude: req.body.gameAreaLongitude,
-            gameAreaRadius: req.body.gameAreaRadius, 
+            gameAreaRadius: req.body.gameAreaRadius,
             interval: req.body.interval
         });
 
@@ -232,7 +232,7 @@ class GameController extends Controller {
         ResponseBuilder.build(res, 200, { message: "Success!" });
     }
 
-    async pickUpTreasure(data, socket){
+    async pickUpTreasure(data, socket) {
         let { playerId, treasureId } = data;
 
         const treasure = await GameLocation.findOne({
@@ -260,13 +260,13 @@ class GameController extends Controller {
 
         let message = {};
 
-        if(treasure == null){
+        if (treasure == null) {
             message.title = "Te laat!";
             message.body = "De schat is al gepakt door iemand anders!"
-        }else if(this.calculateDistance(player, treasure) > 5){
+        } else if (this.calculateDistance(player, treasure) > 5) {
             message.title = "Te ver weg!";
             message.body = "Kom dichterbij de schat en probeer het opnieuw!"
-        }else{
+        } else {
             treasure.isPickedUp = true;
             await treasure.save();
             message.title = "Succes!";
@@ -276,9 +276,9 @@ class GameController extends Controller {
         socket.emit('pick_up_treasure_result', JSON.stringify(message));
     }
 
-    calculateDistance(player, treasure){
+    calculateDistance(player, treasure) {
         return geolib.getDistance(
-            { latitude: player.location.latitude, longitude: player.location.longitude},
+            { latitude: player.location.latitude, longitude: player.location.longitude },
             { latitude: treasure.location.latitude, longitude: treasure.location.longitude }
         );
     }
@@ -303,7 +303,7 @@ class GameController extends Controller {
             players: playersSchema.required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            gameAreaRadius: Joi.number().max(100000).required(),
+            gameAreaRadius: Joi.number().min(0).required(),
             interval: Joi.number().min(1).max(15).required(),
         });
 
@@ -314,10 +314,10 @@ class GameController extends Controller {
         const schema = Joi.object({
             startAt: Joi.date().required(),
             minutes: Joi.number().min(1).required(),
+            isStarted: Joi.boolean().required(),
+            gameAreaRadius: Joi.number().min(0).required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            gameAreaRadius: Joi.number().max(100000).required(),
-            isStarted: Joi.boolean().required(),
             interval: Joi.number().min(1).max(15).required()
         });
 
@@ -376,11 +376,11 @@ class GameController extends Controller {
         }, game.endAt)
     }
 
-    sendLocationsToSocket(locations, game){
+    sendLocationsToSocket(locations, game) {
         let sendableLocations = [];
 
         for (const gameLocation of locations.gameLocations) {
-            if(!gameLocation.isPickedUp){
+            if (!gameLocation.isPickedUp) {
                 sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
             }
         }
