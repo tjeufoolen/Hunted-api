@@ -7,7 +7,7 @@ REST api build for the Hunted project using express.
 3. Execute `npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all` to create the database table and seed data.
 4. Start programming! :tada:
 
-## Heroku Deployment
+## Manual Heroku Deployment
 1. Be sure to check that Dockerfile runs npm start instead of npm run watch and that we are only installing NON development node modules.
 2. Run `heroku container:push web --app="hunted-api"` to build the api.
 3. Run `heroku container:release web --app="hunted-api"` to release the api.
