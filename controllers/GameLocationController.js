@@ -4,12 +4,12 @@ const Joi = require('joi');
 const { Op } = require("sequelize");
 
 
-const {Location, GameLocation, Game} = require("../models/index");
+const { Location, GameLocation, Game } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const { GameLocationTypes } = require('../enums/GameLocationTypes');
 
 class GameLocationController extends Controller {
-    constructor(){
+    constructor() {
         super();
 
         this.get = this.get.bind(this);
@@ -19,10 +19,10 @@ class GameLocationController extends Controller {
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
     }
-    async get(req,res,next){
+    async get(req, res, next) {
         let gameLocations = [];
         let filter = {
-            where: {gameId: req.params.gameId},
+            where: { gameId: req.params.gameId },
             include: {
                 model: Location,
                 as: "location",
@@ -38,14 +38,14 @@ class GameLocationController extends Controller {
     }
 
     async getById(req, res, next) {
-        if(!req.params.gameId || !req.params.locationId)
+        if (!req.params.gameId || !req.params.locationId)
             return this.error(next, 400, 'Incomplete data');
 
         const gameLocation = await GameLocation.findOne({
             where: {
                 [Op.and]: [
-                    {id: req.params.locationId},
-                    {gameId: req.params.gameId}
+                    { id: req.params.locationId },
+                    { gameId: req.params.gameId }
                 ]
             },
             include:
@@ -56,19 +56,19 @@ class GameLocationController extends Controller {
             }
         });
 
-        if(!gameLocation) return this.error(next, 404, 'The specified game location has not been found!', 'location_not_found');
+        if (!gameLocation) return this.error(next, 404, 'The specified game location has not been found!', 'location_not_found');
 
         return ResponseBuilder.build(res, 200, gameLocation);
     }
 
-    async post(req,res,next) {
+    async post(req, res, next) {
         if (!req.params.gameId)
             return this.error(next, 400, 'Incomplete data');
 
         // Validate data
         const error = this.validateCreate(req.body);
         if (error) return this.error(next, 400, 'Incomplete data');
-        
+
         const location = await Location.create({
             latitude: req.body.location.latitude,
             longitude: req.body.location.longitude
@@ -83,7 +83,7 @@ class GameLocationController extends Controller {
                 as: 'gameLocations'
             }
         });
-      
+
         if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found');
 
         //Check if caller has permission to access resource
@@ -112,8 +112,7 @@ class GameLocationController extends Controller {
         ResponseBuilder.build(res, 200, fetchedGameLocation);
     }
 
-    async put(req,res,next)
-    {
+    async put(req, res, next) {
         if (!req.params.gameId || !req.params.locationId)
             return this.error(next, 400, 'Incomplete data');
 
@@ -136,8 +135,8 @@ class GameLocationController extends Controller {
         let gameLocation = await GameLocation.findOne({
             where: {
                 [Op.and]: [
-                    {id: req.params.locationId},
-                    {gameId: req.params.gameId}
+                    { id: req.params.locationId },
+                    { gameId: req.params.gameId }
                 ]
             },
             include: {
@@ -147,17 +146,17 @@ class GameLocationController extends Controller {
         });
 
         // Update Specific fields on game location and location
-        if(gameLocation){
+        if (gameLocation) {
             // Fetch Location
             let location = await Location.findOne({
                 where: {
                     id: gameLocation.locationId
                 }
             })
-            
+
             gameLocation.name = req.body.name
             gameLocation.type = req.body.type
-            location.latitude = req.body.location.latitude 
+            location.latitude = req.body.location.latitude
             location.longitude = req.body.location.longitude
 
             // Save updated fields game location and location
@@ -197,8 +196,7 @@ class GameLocationController extends Controller {
         return ResponseBuilder.build(res, 200, gameLocation);
     }
 
-    async patch(req, res, next)
-    {
+    async patch(req, res, next) {
         if (!req.params.gameId || !req.params.locationId)
             return this.error(next, 400, 'Incomplete data');
 
@@ -210,8 +208,8 @@ class GameLocationController extends Controller {
         const gameLocation = await GameLocation.findOne({
             where: {
                 [Op.and]: [
-                    {id: req.params.locationId},
-                    {gameId: req.params.gameId}
+                    { id: req.params.locationId },
+                    { gameId: req.params.gameId }
                 ]
             },
             include: {
@@ -224,11 +222,11 @@ class GameLocationController extends Controller {
         // Check if caller has permission to access resource
         if (req.user.id != gameLocation.userId && !req.user.isAdmin)
             return this.error(next, 403, 'Unauthorized');
-      
+
         // Fetch Location
         const location = await Location.findOne({
             where: {
-                id: gameLocation.id
+                id: gameLocation.locationId
             }
         })
 
@@ -243,7 +241,7 @@ class GameLocationController extends Controller {
         const updatedLocation = await location.save();
 
         // Return updated game location
-        return ResponseBuilder.build(res, 200, (updatedGameLocation,updatedLocation));
+        return ResponseBuilder.build(res, 200, (updatedGameLocation, updatedLocation));
     }
 
     async delete(req, res, next) {
@@ -254,8 +252,8 @@ class GameLocationController extends Controller {
         const gameLocation = await GameLocation.findOne({
             where: {
                 [Op.and]: [
-                    {id: req.params.locationId},
-                    {gameId: req.params.gameId}
+                    { id: req.params.locationId },
+                    { gameId: req.params.gameId }
                 ]
             },
             include: {
