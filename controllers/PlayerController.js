@@ -248,39 +248,43 @@ class PlayerController extends Controller {
         return ResponseBuilder.build(res, 200, player);
     }
 
-    async updateLocation(location) {
-        const error = this.validatePutLocation(location);
+    async updateLocation(data) {
+        const error = this.validatePutLocation(data);
         if (error) return;
 
         let player = await Player.findOne({
             where: {
-                id: location.id
+                id: data.id,
+                gameId: data.gameId
+            },
+            include: {
+                model: Location,
+                as: 'location'
             }
         });
 
-        let playerLocation = await player.getLocation();
-
-        if (playerLocation == null) {
-            let newlocation = await Location.create({ longitude: location.longitude, latitude: location.latitude })
+        if (player.location == null) {
+            let newlocation = await Location.create({ longitude: data.longitude, latitude: data.latitude })
 
             player.locationId = newlocation.id;
             player.save();
 
         } else {
-            playerLocation.longitude = location.longitude;
-            playerLocation.latitude = location.latitude;
+            player.location.longitude = data.longitude;
+            player.location.latitude = data.latitude;
 
-            playerLocation.save();
+            player.location.save();
         }
     }
 
-    async fetchNearbyLocations(location, socket) {
-        const error = this.validateFetchNearbyLocation(location);
+    async fetchNearbyLocations(data, socket) {
+        const error = this.validateFetchNearbyLocation(data);
         if (error) return;
 
         const player = await Player.findOne({
             where: {
-                id: location.id
+                id: data.id,
+                gameId: data.gameId
             }
         });
         if (player == null) return;
@@ -301,7 +305,7 @@ class PlayerController extends Controller {
             if (gamePlayer.location === null) return false;
 
             const metersApartFromPlayer = geolib.getDistance(
-                { latitude: location.latitude, longitude: location.longitude },
+                { latitude: data.latitude, longitude: data.longitude },
                 { latitude: gamePlayer.location.latitude, longitude: gamePlayer.location.longitude }
             );
 
@@ -309,15 +313,24 @@ class PlayerController extends Controller {
             return metersApartFromPlayer <= TEMPMAXDISTANCEINMETERS;
         });
 
-        const filteredPlayers = playersCloseBy.map(player => {
-            return {
-                id: player.id,
-                playerRole: player.playerRole,
-                location
-            }
-        });
+        let sendableLocations = [];
 
-        socket.emit("nearby_locations_update", filteredPlayers)
+        for (const player of playersCloseBy) {
+            if (player.location != null && !player.outOfTheGame) {
+                sendableLocations.push({ "id": player.id, "type": this.convertTypeForApp(player.playerRole, "player"), "name": "player", "location": player.location });
+            }
+        }
+
+        socket.emit("nearby_locations_update", sendableLocations);
+    }
+
+    convertTypeForApp(id, type) {
+        if (type == "gameLocation") {
+            return id;
+        }
+
+        // +2 for the amount of gameLocations there are for convrinting into single list
+        return id + 2;
     }
 
     validatePost(data) {
@@ -349,6 +362,7 @@ class PlayerController extends Controller {
     validatePutLocation(data) {
         const schema = Joi.object({
             id: Joi.number().required(),
+            gameId: Joi.number().required(),
             latitude: Joi.number().required(),
             longitude: Joi.number().required()
         });
@@ -359,6 +373,7 @@ class PlayerController extends Controller {
     validateFetchNearbyLocation(data) {
         const schema = Joi.object({
             id: Joi.number().required(),
+            gameId: Joi.number().required(),
             latitude: Joi.number().required(),
             longitude: Joi.number().required()
         });
