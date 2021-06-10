@@ -2,6 +2,7 @@ const { Controller } = require('./Controller');
 
 const Joi = require('joi');
 const { Op } = require("sequelize");
+const geolib = require('geolib');
 
 const { Player, Game, Location } = require("../models/index");
 const { PlayerRoles } = require("../enums/PlayerRoles");
@@ -19,32 +20,7 @@ class PlayerController extends Controller {
         this.patch = this.patch.bind(this);
         this.delete = this.delete.bind(this);
         this.updateLocation = this.updateLocation.bind(this);
-    }
-
-    async updateLocation(location) {
-        const error = this.validatePutLocation(location);
-        if (error) return;
-
-        let player = await Player.findOne({
-            where: {
-                id: location.id
-            }
-        });
-
-        let playerLocation = await player.getLocation();
-
-        if(playerLocation == null){
-            let newlocation = await Location.create({longitude: location.longitude, latitude: location.latitude})
-
-            player.locationId = newlocation.id;
-            player.save();
-
-        } else{
-            playerLocation.longitude = location.longitude;
-            playerLocation.latitude = location.latitude;
-    
-            playerLocation.save();
-        }
+        this.fetchNearbyLocations = this.fetchNearbyLocations.bind(this);
     }
 
     async post(req, res, next) {
@@ -176,7 +152,7 @@ class PlayerController extends Controller {
         // If resource not found, put will create a new one
         else {
             const playerId = parseInt(req.params.playerId);
-            const newPlayer = await Player.create({
+            await Player.create({
                 id: playerId,
                 gameId: game.id,
                 code: await InviteTokenController.generate(game.id, playerId),
@@ -272,6 +248,78 @@ class PlayerController extends Controller {
         return ResponseBuilder.build(res, 200, player);
     }
 
+    async updateLocation(location) {
+        const error = this.validatePutLocation(location);
+        if (error) return;
+
+        let player = await Player.findOne({
+            where: {
+                id: location.id
+            }
+        });
+
+        let playerLocation = await player.getLocation();
+
+        if (playerLocation == null) {
+            let newlocation = await Location.create({ longitude: location.longitude, latitude: location.latitude })
+
+            player.locationId = newlocation.id;
+            player.save();
+
+        } else {
+            playerLocation.longitude = location.longitude;
+            playerLocation.latitude = location.latitude;
+
+            playerLocation.save();
+        }
+    }
+
+    async fetchNearbyLocations(location, socket) {
+        const error = this.validateFetchNearbyLocation(location);
+        if (error) return;
+
+        const player = await Player.findOne({
+            where: {
+                id: location.id
+            }
+        });
+        if (player == null) return;
+
+        const allGamePlayers = await Player.findAll({
+            where: {
+                gameId: player.gameId
+            },
+            include: {
+                model: Location,
+                as: 'location'
+            }
+        });
+        if (allGamePlayers == null) return;
+
+        const otherPlayers = allGamePlayers.filter(gamePlayer => player.id !== gamePlayer.id);
+        const playersCloseBy = otherPlayers.filter(gamePlayer => {
+            if (gamePlayer.location === null) return false;
+
+            const metersApartFromPlayer = geolib.getDistance(
+                { latitude: location.latitude, longitude: location.longitude },
+                { latitude: gamePlayer.location.latitude, longitude: gamePlayer.location.longitude }
+            );
+
+            const TEMPMAXDISTANCEINMETERS = 200; // TODO: <- replace this with value set in webportal
+            return metersApartFromPlayer <= TEMPMAXDISTANCEINMETERS;
+        });
+
+        const filteredPlayers = playersCloseBy.map(player => {
+            return {
+                id: player.id,
+                playerRole: player.playerRole,
+                location
+            }
+        });
+
+        socket.emit("nearby_locations_update", filteredPlayers)
+    }
+
     validatePost(data) {
         const schema = Joi.object({
             playerRole: Joi.number().valid(...PlayerRoles.values()).required(),
@@ -298,7 +346,17 @@ class PlayerController extends Controller {
         return schema.validate(data).error;
     }
 
-    validatePutLocation(data){
+    validatePutLocation(data) {
+        const schema = Joi.object({
+            id: Joi.number().required(),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required()
+        });
+
+        return schema.validate(data).error;
+    }
+
+    validateFetchNearbyLocation(data) {
         const schema = Joi.object({
             id: Joi.number().required(),
             latitude: Joi.number().required(),
