@@ -5,9 +5,8 @@ const Joi = require('joi');
 const { Player, Game, GameLocation, Location } = require("../models/index");
 const ResponseBuilder = require('../utils/ResponseBuilder');
 const InviteTokenController = require('./InviteTokenController');
-const CronManager = require('../managers/CronManager')
-const io = require('../utils/socket')
-const { Op } = require("sequelize");
+const CronManager = require('../managers/CronManager');
+const io = require('../utils/socket');
 const geolib = require('geolib');
 
 class GameController extends Controller {
