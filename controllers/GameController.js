@@ -192,6 +192,7 @@ class GameController extends Controller {
         game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
+        game.winner = req.body.winner;
 
         // Save updated game
         const updatedGame = await game.save();
@@ -317,7 +318,8 @@ class GameController extends Controller {
             gameAreaRadius: Joi.number().min(0).required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            interval: Joi.number().min(1).max(15).required()
+            interval: Joi.number().min(1).max(15).required(),
+            winner: Joi.number().valid(...PlayerRoles.values()).required()
         });
 
         return schema.validate(data).error;
