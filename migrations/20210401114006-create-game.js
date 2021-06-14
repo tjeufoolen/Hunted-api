@@ -58,7 +58,7 @@ module.exports = {
       },
       distanceThiefPolice:
       {
-        type: Sequelize.Double,
+        type: Sequelize.DOUBLE,
         allowNull: false,
         defaultValue: 25
       }
