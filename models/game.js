@@ -91,6 +91,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 		  type: DataTypes.Double,
 		  allowNull: false,
+		  defaultValue: 25
 		}
 	}, {
 		sequelize,

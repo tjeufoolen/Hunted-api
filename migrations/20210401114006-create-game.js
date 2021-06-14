@@ -60,6 +60,7 @@ module.exports = {
       {
         type: Sequelize.Double,
         allowNull: false,
+        defaultValue: 25
       }
     },
       {

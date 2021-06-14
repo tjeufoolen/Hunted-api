@@ -305,6 +305,7 @@ class GameController extends Controller {
             gameAreaLongitude: Joi.number().required(),
             gameAreaRadius: Joi.number().min(0).required(),
             interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number.min(20).max(200).required()
         });
 
         return schema.validate(data).error;
@@ -318,7 +319,8 @@ class GameController extends Controller {
             gameAreaRadius: Joi.number().min(0).required(),
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
-            interval: Joi.number().min(1).max(15).required()
+            interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number.min(20).max(200).required()
         });
 
         return schema.validate(data).error;
