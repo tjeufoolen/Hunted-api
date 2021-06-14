@@ -82,7 +82,8 @@ class GameController extends Controller {
             gameAreaLatitude: req.body.gameAreaLatitude,
             gameAreaLongitude: req.body.gameAreaLongitude,
             gameAreaRadius: req.body.gameAreaRadius,
-            interval: req.body.interval
+            interval: req.body.interval,
+            distanceThiefPolice: req.body.distanceThiefPolice
         });
 
         // Create players
@@ -192,7 +193,7 @@ class GameController extends Controller {
         game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
-
+        game.distanceThiefPolice = req.body.distanceThiefPolice;
         // Save updated game
         const updatedGame = await game.save();
 
