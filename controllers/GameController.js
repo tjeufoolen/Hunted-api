@@ -8,6 +8,7 @@ const InviteTokenController = require('./InviteTokenController');
 const CronManager = require('../managers/CronManager');
 const io = require('../utils/socket');
 const geolib = require('geolib');
+const { PlayerRoles } = require("../enums/PlayerRoles");
 
 class GameController extends Controller {
     constructor() {
