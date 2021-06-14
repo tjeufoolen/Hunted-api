@@ -20,6 +20,7 @@ class GameController extends Controller {
         this.getById = this.getById.bind(this);
         this.update = this.update.bind(this);
         this.delete = this.delete.bind(this);
+        this.patch = this.patch.bind(this);
         this.startCronjob = this.startCronjob.bind(this);
     }
 
@@ -193,7 +194,50 @@ class GameController extends Controller {
         game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
-        game.winner = req.body.winner;
+        if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
+
+        // Save updated game
+        const updatedGame = await game.save();
+
+        // Notify socket game is starting if isStarted changed this request
+        if (oldGameStarted != updatedGame.isStarted) {
+            io.to(updatedGame.id).emit("gameStarted");
+        }
+
+        // Start cronjob if it wasn't already running when the game started
+        if (updatedGame.isStarted && !CronManager.running(updatedGame.id)) {
+            await this.startCronjob(updatedGame, next);
+        }
+
+        // Return updated game
+        ResponseBuilder.build(res, 200, updatedGame);
+    }
+
+    async patch(req, res, next) {
+        // Handle top level route /user/:userId
+        if (req.params.userId) {
+            // Check if authenticated user has permission to create game under specified userId
+            if (!req.user.isAdmin && (req.user.id != req.params.userId)) {
+                return this.error(next, 403, 'Unauthorized');
+            }
+        }
+
+        // validate data
+        const error = this.validatePatch(req.body);
+        if (error) return this.error(next, 400, 'Incomplete data');
+
+        // Create game
+        const game = await Game.findOne({
+            where: {
+                id: req.params.gameId
+            }
+        });
+        if (!game) return this.error(next, 404, 'The specified game could not be found', 'game_not_found')
+
+        // keep copy of old data to compare against
+        const oldGameStarted = game.isStarted;
+
+        if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
 
         // Save updated game
         const updatedGame = await game.save();
@@ -320,9 +364,15 @@ class GameController extends Controller {
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
             interval: Joi.number().min(1).max(15).required(),
-            winner: Joi.number().valid(...PlayerRoles.values()).required()
         });
 
+        return schema.validate(data).error;
+    }
+
+    validatePatch(data) {
+        const schema = Joi.object({
+            winner: Joi.number().valid(...PlayerRoles.values())
+        });
         return schema.validate(data).error;
     }
 
