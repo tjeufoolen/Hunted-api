@@ -261,7 +261,7 @@ class GameController extends Controller {
 
         if(player.outOfTheGame) {
             message.title = "In de cell!";
-            message.body = "Je zit in de cell, dus jammer genoeg kan niet meer meedoen!"
+            message.body = "Je zit in de cell, dus je kan jammer genoeg niet meer meedoen"
         } else if (treasure == null) {
             message.title = "Te laat!";
             message.body = "De schat is al gepakt door iemand anders!"
