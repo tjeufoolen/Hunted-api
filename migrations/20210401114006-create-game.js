@@ -61,6 +61,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 25
+      },
+      winner: {
+        type: Sequelize.INTEGER,
+        allowNull: true
       }
     },
       {

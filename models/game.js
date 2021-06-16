@@ -92,6 +92,11 @@ module.exports = (sequelize, DataTypes) => {
 		  type: DataTypes.INTEGER,
 		  allowNull: false,
 		  defaultValue: 25
+    },
+		winner:
+		{
+			type: DataTypes.INTEGER,
+			allowNull: true
 		}
 	}, {
 		sequelize,
