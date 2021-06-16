@@ -300,6 +300,14 @@ class PlayerController extends Controller {
         });
         if (allGamePlayers == null) return;
 
+        const game = await Game.findOne({
+            where: {
+                id: player.gameId
+            },
+            attributes: ["distanceThiefPolice"],
+        });
+        if (game == null) return;
+
         const otherPlayers = allGamePlayers.filter(gamePlayer => player.id !== gamePlayer.id);
         const playersCloseBy = otherPlayers.filter(gamePlayer => {
             if (gamePlayer.location === null) return false;
@@ -309,8 +317,7 @@ class PlayerController extends Controller {
                 { latitude: gamePlayer.location.latitude, longitude: gamePlayer.location.longitude }
             );
 
-            const TEMPMAXDISTANCEINMETERS = 200; // TODO: <- replace this with value set in webportal
-            return metersApartFromPlayer <= TEMPMAXDISTANCEINMETERS;
+            return metersApartFromPlayer <= game.distanceThiefPolice;
         });
 
         let sendableLocations = [];
