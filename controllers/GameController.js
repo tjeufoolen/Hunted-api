@@ -239,10 +239,10 @@ class GameController extends Controller {
 
         if (req.body.winner !== undefined && req.body.winner != null){
             game.winner = req.body.winner;
-            if(req.body.winner === 0){
-                io.to(updatedGame.id).emit("gameFinished", "Het spel is afgelopen! De politie heeft gewonnen!")
-            } else if (req.body.winner === 1){
-                io.to(updatedGame.id).emit("gameFinished", "Het spel is afgelopen! De dieven hebben gewonnen!")
+            if(req.body.winner == 0){
+                io.to(game.id).emit("gameFinished", "Het spel is afgelopen! De politie heeft gewonnen!")
+            } else if (req.body.winner == 1){
+                io.to(game.id).emit("gameFinished", "Het spel is afgelopen! De dieven hebben gewonnen!")
             }
         }
 
