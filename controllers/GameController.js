@@ -84,7 +84,8 @@ class GameController extends Controller {
             gameAreaLatitude: req.body.gameAreaLatitude,
             gameAreaLongitude: req.body.gameAreaLongitude,
             gameAreaRadius: req.body.gameAreaRadius,
-            interval: req.body.interval
+            interval: req.body.interval,
+            distanceThiefPolice: req.body.distanceThiefPolice
         });
 
         // Create players
@@ -194,6 +195,7 @@ class GameController extends Controller {
         game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
+        game.distanceThiefPolice = req.body.distanceThiefPolice;
         if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
 
         // Save updated game
@@ -238,7 +240,6 @@ class GameController extends Controller {
         const oldGameStarted = game.isStarted;
 
         if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
-
         // Save updated game
         const updatedGame = await game.save();
 
@@ -350,6 +351,7 @@ class GameController extends Controller {
             gameAreaLongitude: Joi.number().required(),
             gameAreaRadius: Joi.number().min(0).required(),
             interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number().min(20).max(200).required()
         });
 
         return schema.validate(data).error;
@@ -364,6 +366,7 @@ class GameController extends Controller {
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
             interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number().min(20).max(200).required()
         });
 
         return schema.validate(data).error;

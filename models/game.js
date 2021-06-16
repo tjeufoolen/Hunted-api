@@ -87,6 +87,12 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: false,
 			defaultValue: 1,
 		},
+		distanceThiefPolice:
+		{
+		  type: DataTypes.INTEGER,
+		  allowNull: false,
+		  defaultValue: 25
+    },
 		winner:
 		{
 			type: DataTypes.INTEGER,
