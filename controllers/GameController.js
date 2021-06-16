@@ -237,7 +237,14 @@ class GameController extends Controller {
         // keep copy of old data to compare against
         const oldGameStarted = game.isStarted;
 
-        if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
+        if (req.body.winner !== undefined && req.body.winner != null){
+            game.winner = req.body.winner;
+            if(req.body.winner === 0){
+                io.to(updatedGame.id).emit("gameFinished", "Het spel is afgelopen! De politie heeft gewonnen!")
+            } else if (req.body.winner === 1){
+                io.to(updatedGame.id).emit("gameFinished", "Het spel is afgelopen! De dieven hebben gewonnen!")
+            }
+        }
 
         // Save updated game
         const updatedGame = await game.save();
