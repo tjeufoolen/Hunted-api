@@ -259,7 +259,10 @@ class GameController extends Controller {
 
         let message = {};
 
-        if (treasure == null) {
+        if(player.outOfTheGame) {
+            message.title = "In de cell!";
+            message.body = "Je zit in de cell, dus jammergenoeg kan niet meer meedoen!"
+        } else if (treasure == null) {
             message.title = "Te laat!";
             message.body = "De schat is al gepakt door iemand anders!"
         } else if (this.calculateDistance(player, treasure) > 5) {
@@ -317,7 +320,7 @@ class GameController extends Controller {
 
             let thief_message = {};
             thief_message.title = "Gesnapt!";
-            thief_message.body = "Je bent erbij!";
+            thief_message.body = "Je bent erbij! Je bent opgepakt door een politie agent, ga terug naar het politiebureau";
             io.to("thief_" + thief.id).emit("thief_catch_result", thief_message)
         }
 
