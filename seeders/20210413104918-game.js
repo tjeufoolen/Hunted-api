@@ -12,7 +12,9 @@ module.exports = {
       gameAreaLatitude: 51.888529,
       gameAreaLongitude: 5.6,
       gameAreaRadius: 1000,
-      interval: 3
+      interval: 3,
+      distanceThiefPolice: 50,
+      winner: null
     }, {
       userId: 1,
       startAt: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
@@ -21,7 +23,9 @@ module.exports = {
       gameAreaLatitude: 51.888529,
       gameAreaLongitude: 5.6,
       gameAreaRadius: 1000,
-      interval: 2
+      interval: 2,
+      distanceThiefPolice: 20,
+      winner: null
     }],
     )
   },
