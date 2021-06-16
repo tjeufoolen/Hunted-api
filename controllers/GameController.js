@@ -293,7 +293,7 @@ class GameController extends Controller {
             }]
         });
 
-        const player = await Player.findOne({
+        const police = await Player.findOne({
             where: {
                 id: playerId
             },
@@ -309,7 +309,7 @@ class GameController extends Controller {
         if (thief == null) {
             message.title = "Te laat!";
             message.body = "De dief is al gepakt door iemand anders!"
-        } else if (this.calculateDistance(player, thief) > 200) {
+        } else if (this.calculateDistance(police, thief) > 200) {
             message.title = "Te ver weg!";
             message.body = "Kom dichterbij de dief en probeer het opnieuw!"
         } else {
