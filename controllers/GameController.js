@@ -37,7 +37,7 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius"],
+                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius", "distanceThiefPolice"],
 
                 include: [{
                     model: GameLocation,
@@ -306,7 +306,7 @@ class GameController extends Controller {
 
         let message = {};
 
-        if(player.outOfTheGame) {
+        if (player.outOfTheGame) {
             message.title = "In de cell!";
             message.body = "Je zit in de cell, dus je kan jammer genoeg niet meer meedoen"
         } else if (treasure == null) {
@@ -325,7 +325,7 @@ class GameController extends Controller {
         socket.emit('pick_up_treasure_result', JSON.stringify(message));
     }
 
-    async arrestThief(data, socket){
+    async arrestThief(data, socket) {
         let { playerId, thiefId } = data;
 
         const thief = await Player.findOne({
@@ -441,7 +441,7 @@ class GameController extends Controller {
             id: playerId,
             gameId,
             code,
-            playerRole: role, // TODO: Implement actual playerRole when roles are available.
+            playerRole: role,
             outOfTheGame: false
         });
     }
