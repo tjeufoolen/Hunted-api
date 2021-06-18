@@ -1,8 +1,8 @@
 const cron = require('cron').CronJob;
 const moment = require('moment');
 
-class CronManager{
-    constructor(){
+class CronManager {
+    constructor() {
         this._jobs = {};
     }
 
@@ -13,37 +13,43 @@ class CronManager{
      * @param {*} callback 
      * @param {datetime} endDateTime (moment js)
      */
-    add(name, interval, callback, endDateTime){
+    add(name, interval, callback, endDateTime) {
         this._jobs[name] = {
             name: name,
             cron: new cron(`*/${interval} * * * * `, () => {
-                if(moment() > endDateTime){
+                if (moment() > endDateTime) {
                     this.stop(name);
                     return;
                 }
 
-                callback()
+                callback();
             }, null, true),
             endDateTime: endDateTime
         };
     }
 
     stop(name) {
-        if(this.exists(name)){
+        const winston = require('winston')
 
-            this._jobs[name].cron.stop()
-            this.delete(name)
+        winston.log('info', {
+            jobs: this._jobs
+        });
+
+        if (this.exists(name)) {
+            this._jobs[name].cron.stop();
+            this.delete(name);
         }
     }
 
     delete(name) {
-        if(this.exists(name)) delete this._jobs[name];
+        if (this.exists(name))
+            delete this._jobs[name];
     }
 
     stopAll() {
         for (const cron in this._jobs) {
             const job = this._jobs[cron];
-            if (this.running(job.name)) 
+            if (this.running(job.name))
                 this.stop(job.name);
         }
     }
@@ -53,7 +59,7 @@ class CronManager{
     }
 
     running(name) {
-        if(this.exists(name)){
+        if (this.exists(name)) {
             return this._jobs[name].cron.running;
         }
     }
@@ -63,11 +69,11 @@ class CronManager{
     }
 
     nextDates(name) {
-        if(this.exists(name))
+        if (this.exists(name))
             return this._jobs[name].cron.nextDates();
     }
 
-    exists(name){
+    exists(name) {
         return this._jobs[name] != undefined
     }
 }
