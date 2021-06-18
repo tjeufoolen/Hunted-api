@@ -3,9 +3,10 @@ REST api build for the Hunted project using express.
 
 ## Getting Started
 1. Clone this repository.
-2. Run `docker-compose up -d --build`.
-3. Execute `npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all` to create the database table and seed data.
-4. Start programming! :tada:
+2. Run `npm install`.
+3. Run `docker-compose up -d --build`.
+4. Execute `npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all` to create the database table and seed data.
+5. Start programming! :tada:
 
 ## Manual Heroku Deployment
 1. Be sure to check that Dockerfile runs npm start instead of npm run watch and that we are only installing NON development node modules.
