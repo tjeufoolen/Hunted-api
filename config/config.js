@@ -7,7 +7,8 @@ module.exports = {
     database: 'hunted_api_db',
     host: process.env.DB_HOST,
     port: 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: false
   },
   test: {
     username: process.env.DB_USERNAME,
@@ -15,6 +16,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: false
   }
 };

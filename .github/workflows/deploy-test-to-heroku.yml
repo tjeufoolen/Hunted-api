@@ -1,0 +1,46 @@
+name: Deploy Test To Heroku
+
+on: 
+  push:
+    branches:
+      - test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      # Fetch all files
+      - uses: actions/checkout@v2
+
+      # Install all nodejs dependencies
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+
+      # Deploy docker container to heroku
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "hunted-api"
+          heroku_email: "tjeu@foolen.me"
+          usedocker: true
+          docker_build_args: |
+            NODE_ENV
+            SECRET_KEY
+        env:
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          INVITE_CODE_KEY: ${{ secrets.INVITE_CODE_KEY }}
+
+      # Drop database, remigrate and seed data
+      - run: sudo npm install -g --save-dev sequelize-cli
+      - run: sequelize-cli db:drop --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sequelize-cli db:create --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sequelize-cli db:migrate --url="${{ secrets.DB_CONNECTION_STRING }}"
+      - run: sequelize-cli db:seed:all --url="${{ secrets.DB_CONNECTION_STRING }}"
