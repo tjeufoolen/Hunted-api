@@ -262,6 +262,13 @@ class PlayerController extends Controller {
                 as: 'location'
             }
         });
+        const winston = require('winston');
+        winston.log('player:', '-------Hello player!------------', {
+            player: player,
+            playerId: data.id,
+            gameId: data.gameId
+        });
+        if (player === null) return;
 
         if (player.location == null) {
             let newlocation = await Location.create({ longitude: data.longitude, latitude: data.latitude })
