@@ -12,11 +12,19 @@ io.on('connection', socket => {
 		socket.leaveAll();
 	})
 
-    socket.on("send_location", location => {
-        PlayerController.updateLocation(location)
+	socket.on("send_location", location => {
+		// Update location from player
+		PlayerController.updateLocation(location);
+
+		// Notify players when newLocation is close by
+		PlayerController.fetchNearbyLocations(location, socket);
 	});
 
 	socket.on("pick_up_treasure", data => {
 		GameController.pickUpTreasure(data, socket);
+	});
+
+	socket.on("arrest_thief", data => {
+		GameController.arrestThief(data, socket);
 	});
 });
