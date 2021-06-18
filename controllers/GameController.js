@@ -315,13 +315,15 @@ class GameController extends Controller {
 
         let message = {};
 
+        const maxDistanceInMetersToPickup = 50; //TODO: momenteel hard coded, wellicht in de toekomst aanpasbaar maken?
+
         if (player.outOfTheGame) {
             message.title = "In de cell!";
             message.body = "Je zit in de cell, dus je kan jammer genoeg niet meer meedoen"
         } else if (treasure == null) {
             message.title = "Te laat!";
             message.body = "De schat is al gepakt door iemand anders!"
-        } else if (this.calculateDistance(player, treasure) > 5) {
+        } else if (this.calculateDistance(player, treasure) > maxDistanceInMetersToPickup) {
             message.title = "Te ver weg!";
             message.body = "Kom dichterbij de schat en probeer het opnieuw!"
         } else {
@@ -361,11 +363,12 @@ class GameController extends Controller {
         });
 
         let message = {};
+        const maxDistanceInMetersToPickup = 200; //TODO: momenteel hard coded, wellicht in de toekomst aanpasbaar maken?
 
         if (thief == null) {
             message.title = "Te laat!";
             message.body = "De dief is al gepakt door iemand anders!"
-        } else if (this.calculateDistance(police, thief) > 200) {
+        } else if (this.calculateDistance(police, thief) > maxDistanceInMetersToPickup) {
             message.title = "Te ver weg!";
             message.body = "Kom dichterbij de dief en probeer het opnieuw!"
         } else {
