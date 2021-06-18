@@ -495,6 +495,8 @@ class GameController extends Controller {
     sendLocationsToSocket(locations, game) {
         let sendableLocations = [];
 
+        if (!locations || !game) return;
+
         for (const gameLocation of locations.gameLocations) {
             if (!gameLocation.isPickedUp) {
                 sendableLocations.push({ "id": gameLocation.id, "type": this.convertTypeForApp(gameLocation.type, "gameLocation"), "name": gameLocation.name, "location": gameLocation.location })
