@@ -29,12 +29,6 @@ class CronManager {
     }
 
     stop(name) {
-        const winston = require('winston')
-
-        winston.log('info', {
-            jobs: this._jobs
-        });
-
         if (this.exists(name)) {
             this._jobs[name].cron.stop();
             this.delete(name);
