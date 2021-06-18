@@ -262,6 +262,8 @@ class PlayerController extends Controller {
                 as: 'location'
             }
         });
+        console.log('player', player);
+        if (player === null) return;
 
         if (player.location == null) {
             let newlocation = await Location.create({ longitude: data.longitude, latitude: data.latitude })
