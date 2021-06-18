@@ -246,6 +246,7 @@ class GameController extends Controller {
             } else if (req.body.winner == 1) {
                 io.to(game.id).emit("gameFinished", "Het spel is afgelopen! De dieven hebben gewonnen!")
             }
+            CronManager.stop(game.id);
         }
 
         // Save updated game
