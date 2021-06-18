@@ -376,13 +376,7 @@ class GameController extends Controller {
             let thief_message = {};
             thief_message.title = "Gesnapt!";
             thief_message.body = "Je bent erbij! Je bent opgepakt door een politie agent, ga terug naar het politiebureau";
-            io.to("thief_" + thief.id).emit("thief_catch_result", thief_message);
-
-            const winston = require('winston');
-            winston.log('dief wordt opgepakt!', '-------Hello log files!------------', {
-                diefId: thief.id,
-                diefBericht: thief_message
-            });
+            io.to("thief_" + thief.id).emit("thief_catch_result", JSON.stringify(thief_message));
         }
 
         socket.emit('arrest_thief_result', JSON.stringify(message));
