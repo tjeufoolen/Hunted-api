@@ -13,6 +13,7 @@ module.exports = {
       gameAreaLongitude: 5.6,
       gameAreaRadius: 1000,
       interval: 3,
+      distanceThiefPolice: 50,
       winner: null
     }, {
       userId: 1,
@@ -23,6 +24,7 @@ module.exports = {
       gameAreaLongitude: 5.6,
       gameAreaRadius: 1000,
       interval: 2,
+      distanceThiefPolice: 20,
       winner: null
     }],
     )

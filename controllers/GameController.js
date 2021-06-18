@@ -37,7 +37,7 @@ class GameController extends Controller {
             attributes: ["id", "playerRole", "outOfTheGame"],
             include: [{
                 model: Game, as: "game",
-                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius"],
+                attributes: ["id", "startAt", "isStarted", "minutes", "gameAreaLatitude", "gameAreaLongitude", "gameAreaRadius", "distanceThiefPolice"],
 
                 include: [{
                     model: GameLocation,
@@ -84,7 +84,8 @@ class GameController extends Controller {
             gameAreaLatitude: req.body.gameAreaLatitude,
             gameAreaLongitude: req.body.gameAreaLongitude,
             gameAreaRadius: req.body.gameAreaRadius,
-            interval: req.body.interval
+            interval: req.body.interval,
+            distanceThiefPolice: req.body.distanceThiefPolice
         });
 
         // Create players
@@ -194,6 +195,7 @@ class GameController extends Controller {
         game.gameAreaRadius = req.body.gameAreaRadius;
         game.isStarted = req.body.isStarted;
         game.interval = req.body.interval;
+        game.distanceThiefPolice = req.body.distanceThiefPolice;
         if (req.body.winner != undefined && req.body.winner != null) game.winner = req.body.winner;
 
         // Save updated game
@@ -237,11 +239,11 @@ class GameController extends Controller {
         // keep copy of old data to compare against
         const oldGameStarted = game.isStarted;
 
-        if (req.body.winner !== undefined && req.body.winner != null){
+        if (req.body.winner !== undefined && req.body.winner != null) {
             game.winner = req.body.winner;
-            if(req.body.winner == 0){
+            if (req.body.winner == 0) {
                 io.to(game.id).emit("gameFinished", "Het spel is afgelopen! De politie heeft gewonnen!")
-            } else if (req.body.winner == 1){
+            } else if (req.body.winner == 1) {
                 io.to(game.id).emit("gameFinished", "Het spel is afgelopen! De dieven hebben gewonnen!")
             }
         }
@@ -312,7 +314,10 @@ class GameController extends Controller {
 
         let message = {};
 
-        if (treasure == null) {
+        if (player.outOfTheGame) {
+            message.title = "In de cell!";
+            message.body = "Je zit in de cell, dus je kan jammer genoeg niet meer meedoen"
+        } else if (treasure == null) {
             message.title = "Te laat!";
             message.body = "De schat is al gepakt door iemand anders!"
         } else if (this.calculateDistance(player, treasure) > 5) {
@@ -328,10 +333,59 @@ class GameController extends Controller {
         socket.emit('pick_up_treasure_result', JSON.stringify(message));
     }
 
-    calculateDistance(player, treasure) {
+    async arrestThief(data, socket) {
+        let { playerId, thiefId } = data;
+
+        const thief = await Player.findOne({
+            where: {
+                id: thiefId,
+                outOfTheGame: false
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        const police = await Player.findOne({
+            where: {
+                id: playerId
+            },
+            include: [{
+                model: Location,
+                as: "location",
+                attributes: ["latitude", "longitude"],
+            }]
+        });
+
+        let message = {};
+
+        if (thief == null) {
+            message.title = "Te laat!";
+            message.body = "De dief is al gepakt door iemand anders!"
+        } else if (this.calculateDistance(police, thief) > 200) {
+            message.title = "Te ver weg!";
+            message.body = "Kom dichterbij de dief en probeer het opnieuw!"
+        } else {
+            thief.outOfTheGame = true;
+            await thief.save();
+            message.title = "Succes!";
+            message.body = "Je hebt de dief opgepakt!";
+
+            let thief_message = {};
+            thief_message.title = "Gesnapt!";
+            thief_message.body = "Je bent erbij! Je bent opgepakt door een politie agent, ga terug naar het politiebureau";
+            io.to("thief_" + thief.id).emit("thief_catch_result", thief_message)
+        }
+
+        socket.emit('arrest_thief_result', JSON.stringify(message));
+    }
+
+    calculateDistance(first_location, second_location) {
         return geolib.getDistance(
-            { latitude: player.location.latitude, longitude: player.location.longitude },
-            { latitude: treasure.location.latitude, longitude: treasure.location.longitude }
+            { latitude: first_location.location.latitude, longitude: first_location.location.longitude },
+            { latitude: second_location.location.latitude, longitude: second_location.location.longitude }
         );
     }
 
@@ -357,6 +411,7 @@ class GameController extends Controller {
             gameAreaLongitude: Joi.number().required(),
             gameAreaRadius: Joi.number().min(0).required(),
             interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number().min(20).max(200).required()
         });
 
         return schema.validate(data).error;
@@ -371,6 +426,7 @@ class GameController extends Controller {
             gameAreaLatitude: Joi.number().required(),
             gameAreaLongitude: Joi.number().required(),
             interval: Joi.number().min(1).max(15).required(),
+            distanceThiefPolice: Joi.number().min(20).max(200).required()
         });
 
         return schema.validate(data).error;
@@ -393,7 +449,7 @@ class GameController extends Controller {
             id: playerId,
             gameId,
             code,
-            playerRole: role, // TODO: Implement actual playerRole when roles are available.
+            playerRole: role,
             outOfTheGame: false
         });
     }

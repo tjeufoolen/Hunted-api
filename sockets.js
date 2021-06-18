@@ -23,4 +23,8 @@ io.on('connection', socket => {
 	socket.on("pick_up_treasure", data => {
 		GameController.pickUpTreasure(data, socket);
 	});
+
+	socket.on("arrest_thief", data => {
+		GameController.arrestThief(data, socket);
+	});
 });
